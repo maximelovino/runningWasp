@@ -1,0 +1,10 @@
+We are doing a webapp in php with a mySQL database that will store our runs and for each run, the location points of the run with the times.
+
+This will be hosted on Thomas' Raspberry PI, using it as an Apache web server.
+
+TODO: turn pi into webserver using https://www.raspberrypi.org/documentation/remote-access/web-server/apache.md
+TODO: open and redirect 80 port on Swisscom box at Thomas' house
+
+programming guide for waspmote http://www.libelium.com/downloads/documentation/waspmote_programming_guide.pdf
+
+programming guide for gps http://www.libelium.com/downloads/documentation/waspmote_gprs_gps_networking_guide.pdf
