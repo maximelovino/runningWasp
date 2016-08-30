@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Client :  localhost:3306
--- Généré le :  Lun 29 Août 2016 à 14:50
+-- Généré le :  Mar 30 Août 2016 à 14:06
 -- Version du serveur :  5.5.42
 -- Version de PHP :  7.0.8
 
@@ -50,8 +50,16 @@ INSERT INTO `t_group` (`idGroup`, `groupName`) VALUES
 CREATE TABLE `t_run` (
   `idRun` int(11) NOT NULL,
   `idUser` int(11) NOT NULL,
-  `Date` datetime NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+  `Date` datetime NOT NULL,
+  `Seconds` int(11) NOT NULL
+) ENGINE=InnoDB AUTO_INCREMENT=34 DEFAULT CHARSET=latin1;
+
+--
+-- Contenu de la table `t_run`
+--
+
+INSERT INTO `t_run` (`idRun`, `idUser`, `Date`, `Seconds`) VALUES
+(33, 1, '2016-08-29 15:29:01', 86400);
 
 -- --------------------------------------------------------
 
@@ -65,7 +73,37 @@ CREATE TABLE `t_rundata` (
   `xcoord` double NOT NULL,
   `ycoord` double NOT NULL,
   `count` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=10404 DEFAULT CHARSET=latin1;
+
+--
+-- Contenu de la table `t_rundata`
+--
+
+INSERT INTO `t_rundata` (`idRundata`, `idRun`, `xcoord`, `ycoord`, `count`) VALUES
+(1, 33, 12.34, 3.5, 1),
+(2, 33, 22.34, 3.5, 2),
+(3, 33, 22.34, 4.5, 3);
+
+-- --------------------------------------------------------
+
+--
+-- Structure de la table `t_runstats`
+--
+
+CREATE TABLE `t_runstats` (
+  `idRunstats` int(11) NOT NULL,
+  `distance` int(11) NOT NULL,
+  `speed` double NOT NULL,
+  `maxSpeed` double NOT NULL,
+  `idRun` int(11) NOT NULL
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=latin1;
+
+--
+-- Contenu de la table `t_runstats`
+--
+
+INSERT INTO `t_runstats` (`idRunstats`, `distance`, `speed`, `maxSpeed`, `idRun`) VALUES
+(4, 1183189084, 13694.3180989, 0, 33);
 
 -- --------------------------------------------------------
 
@@ -113,6 +151,13 @@ ALTER TABLE `t_rundata`
   ADD KEY `idRun` (`idRun`);
 
 --
+-- Index pour la table `t_runstats`
+--
+ALTER TABLE `t_runstats`
+  ADD PRIMARY KEY (`idRunstats`),
+  ADD KEY `idRun` (`idRun`);
+
+--
 -- Index pour la table `t_user`
 --
 ALTER TABLE `t_user`
@@ -133,12 +178,17 @@ ALTER TABLE `t_group`
 -- AUTO_INCREMENT pour la table `t_run`
 --
 ALTER TABLE `t_run`
-  MODIFY `idRun` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `idRun` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=34;
 --
 -- AUTO_INCREMENT pour la table `t_rundata`
 --
 ALTER TABLE `t_rundata`
-  MODIFY `idRundata` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `idRundata` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=10404;
+--
+-- AUTO_INCREMENT pour la table `t_runstats`
+--
+ALTER TABLE `t_runstats`
+  MODIFY `idRunstats` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=5;
 --
 -- AUTO_INCREMENT pour la table `t_user`
 --
@@ -159,6 +209,12 @@ ALTER TABLE `t_run`
 --
 ALTER TABLE `t_rundata`
   ADD CONSTRAINT `t_rundata_ibfk_1` FOREIGN KEY (`idRun`) REFERENCES `t_run` (`idRun`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+--
+-- Contraintes pour la table `t_runstats`
+--
+ALTER TABLE `t_runstats`
+  ADD CONSTRAINT `t_runstats_ibfk_1` FOREIGN KEY (`idRun`) REFERENCES `t_run` (`idRun`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 --
 -- Contraintes pour la table `t_user`

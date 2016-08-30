@@ -10,6 +10,7 @@ if (!isset($_GET["runid"])) {
     //get all point from the requested runid
     $runp = $db->query("SELECT xcoord, ycoord FROM t_rundata WHERE idRun LIKE " . $_GET["runid"] . " ORDER BY `count`")->fetchAll();
     $runs = $db->query("SELECT * FROM t_runstats WHERE idRun LIKE " . $_GET["runid"])->fetchAll();
+    $time = $runs[0]["distance"] / $runs[0]["speed"];
 }
 ?>
 <!DOCTYPE html>
@@ -22,19 +23,19 @@ if (!isset($_GET["runid"])) {
         <script src="http://maps.googleapis.com/maps/api/js"></script>
         <script>
             var pathArray = [];
-<?php
-$xsum = 0.0;
-$ysum = 0.0;
-$count = 0;
-foreach ($runp as $p) {
-    $xsum += $p["xcoord"];
-    $ysum += $p["ycoord"];
-    $count++;
-    echo 'pathArray.push(new google.maps.LatLng(' . $p["xcoord"] . ',' . $p["ycoord"] . '));' . "\n";
-}
-$centerx = $xsum / $count;
-$centery = $ysum / $count;
-?>
+            <?php
+            $xsum = 0.0;
+            $ysum = 0.0;
+            $count = 0;
+            foreach ($runp as $p) {
+                $xsum += $p["xcoord"];
+                $ysum += $p["ycoord"];
+                $count++;
+                echo 'pathArray.push(new google.maps.LatLng(' . $p["xcoord"] . ',' . $p["ycoord"] . '));' . "\n";
+            }
+            $centerx = $xsum / $count;
+            $centery = $ysum / $count;
+            ?>
             var x = new google.maps.LatLng(<?php echo $centerx ?>, <?php echo $centery ?>);
 
             function initialize()
@@ -70,8 +71,9 @@ $centery = $ysum / $count;
         <div id="googleMap" style="width:100%;height:600px;"></div><br/>
         <table>
             <tr><th colspan="2">Statistiques</th></tr>
-            <tr><td>Distance</td><td><?php echo $runs[0]["distance"] / 1000 ?> KM</td></tr>
-            <tr><td>Vitesse</td><td><?php echo $runs[0]["speed"] ?> M/s</td></tr>
+            <tr><td>Distance</td><td><?php echo round($runs[0]["distance"] / 1000, 2) ?> Km</td></tr>
+            <tr><td>Vitesse</td><td><?php echo round($runs[0]["speed"] * 3.6, 2) ?> Km/h</td></tr>
+            <tr><td>Temps</td><td><?php echo floor($time / 3600) != 0 ? floor($time / 3600) .' H' :""?>  <?php echo ($time / 60) % 60 ?> Min</td></tr>
         </table>
         <section id="footer">
             <div class="inner">
