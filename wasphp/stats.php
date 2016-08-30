@@ -1,18 +1,17 @@
 <?php
 define("R", 6371e3);
-if (!isset($_GET["runid"])) {
-    header("location: index.php");
-} else {
+
+function computeStats($id) {
     try {
         $db = new PDO('mysql:host=localhost;dbname=waspgps;charset=utf8', 'wasper', 'issou');
     } catch (Exception $e) {
         die($e->getMessage());
     }
-    $check = $db->query("SELECT COUNT(*) FROM t_runstats WHERE idRun LIKE " . $_GET["runid"]);
+    $check = $db->query("SELECT COUNT(*) FROM t_runstats WHERE idRun LIKE " . $id);
     $ins = $db->prepare("INSERT INTO `t_runstats`(`distance`, `speed`, `maxSpeed`, `idRun`) VALUES (:dist, :speed, :maxsp, :idRun)");
     if ($check->fetchAll()[0][0] == 0) {
-        $runp = $db->query("SELECT xcoord, ycoord FROM t_rundata WHERE idRun LIKE " . $_GET["runid"] . " ORDER BY `count`")->fetchAll();
-        $runt = $db->query("SELECT Seconds FROM t_run WHERE idRun LIKE ". $_GET["runid"])->fetchAll();
+        $runp = $db->query("SELECT xcoord, ycoord FROM t_rundata WHERE idRun LIKE " . $id . " ORDER BY `count`")->fetchAll();
+        $runt = $db->query("SELECT Seconds FROM t_run WHERE idRun LIKE ". $id)->fetchAll();
         $dist = 0;
         $count = 0;
         $oldx = 0.0;
@@ -38,10 +37,9 @@ if (!isset($_GET["runid"])) {
             "dist" => $dist,
             "speed" => $speed,
             "maxsp" => $maxsp,
-            "idRun" => $_GET["runid"]
+            "idRun" => $id
         ));
     }
 }
-header('location: index.php');      
 ?>
 
