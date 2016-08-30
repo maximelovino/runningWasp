@@ -12,5 +12,11 @@ public class GPScoordinates {
         this.yCoord=yCoord;
     }
 
+    public double getXCoord(){
+        return this.xCoord;
+    }
 
+    public double getYCoord(){
+        return this.yCoord;
+    }
 }

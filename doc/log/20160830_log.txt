@@ -1,0 +1,21 @@
+Server/web view is almost done, 99%. Port translation has been done at Thomas', we have the following
+
+8080 -> index.php
+3306 -> db access
+8021 -> ftp server
+
+Everything is accessible on the domain sampang.internet-box.ch and through phpmyadmin.co
+
+Vincent is working on the WIFI module, which is not the library supported one, it's called Wifly, and he has to communicate with it in UART.
+
+I'm starting the Android app as a master/detail app, connection to the DB will use jdbc, with a mysql provided driver, which has been included as a dependency in the android project. DB connection test has been done.
+
+Everything will communicate with the PI server.
+
+For the android app, we have to check if we really use an hashmap of coordinates, time or we just use the count provided by the DB.
+
+TODO: add data validation when creating a coordinate
+
+Otherwise the DBconnector which gets the data from our DB and returns a list of run in the end is done normally.
+
+Good master/flow ressource: http://mobileappdocs.com/android.html

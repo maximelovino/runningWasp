@@ -10,6 +10,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.ActionBar;
 import android.view.MenuItem;
 
+import java.sql.ResultSet;
+
 /**
  * An activity representing a single Run detail screen. This
  * activity is only used narrow width devices. On tablet-size devices,
@@ -21,6 +23,22 @@ public class RunDetailActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        WaspDataBaseConnector dbConnector = null;
+        String serverURL = "sampang.internet-box.ch";
+
+        try{
+            dbConnector = new WaspDataBaseConnector(serverURL);
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+
+
+
+
+
+
+
         setContentView(R.layout.activity_run_detail);
         Toolbar toolbar = (Toolbar) findViewById(R.id.detail_toolbar);
         setSupportActionBar(toolbar);

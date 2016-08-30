@@ -5,6 +5,7 @@ import java.sql.Driver;
 import java.sql.DriverManager;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Properties;
 
 /**
@@ -16,7 +17,7 @@ public class Run {
     private int userID;
     private Date startDate;
     private int timeOfRun;
-    private HashMap<GPScoordinates,Integer> runData;
+    private LinkedHashMap<GPScoordinates,Integer> runData;
 
 
     public Run(int runID, int userID, Date startDate, int timeOfRun){
@@ -26,10 +27,21 @@ public class Run {
         this.timeOfRun = timeOfRun;
     }
 
-    private void addPointOfRun(GPScoordinates coord, int seconds){
+    public void addPointOfRun(GPScoordinates coord, int seconds){
         runData.put(coord, seconds);
     }
 
+    public int getRunID(){
+        return this.runID;
+    }
+
+    public int getTimeOfRun(){
+        return timeOfRun;
+    }
+
+    public String toString(){
+        return "Run "+runID+" on "+startDate;
+    }
 
 
 }

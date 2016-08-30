@@ -5,6 +5,8 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Date;
 
 /**
  * Created by maximelovino on 30/08/16.
@@ -34,14 +36,42 @@ public class WaspDataBaseConnector {
         return stm.executeQuery(query);
     }
 
+    public ArrayList<Run> getRuns() throws SQLException {
+        ResultSet runs = getRunList();
+        ArrayList<Run> listOfRuns = new ArrayList<>();
 
-    public ResultSet getRunList() throws SQLException {
+        while (runs.next()){
+            int runID = runs.getInt("idRun");
+            int userID = runs.getInt("idUser");
+            Date date = runs.getDate("Date");
+            int time = runs.getInt("Seconds");
+
+            Run newRun = new Run(runID,userID,date,time);
+
+            ResultSet data = getRunData(newRun.getRunID());
+
+            while(data.next()){
+                double x = data.getDouble("xcoord");
+                double y = data.getDouble("ycoord");
+                GPScoordinates gps = new GPScoordinates(x,y);
+                int chronoValue = (data.getInt("count")-1)*5;
+
+                newRun.addPointOfRun(gps,chronoValue);
+            }
+            listOfRuns.add(newRun);
+        }
+
+        return listOfRuns;
+    }
+
+
+    private ResultSet getRunList() throws SQLException {
         String sqlQuery="SELECT * FROM t_run";
         return getQueryData(sqlQuery);
     }
 
-    public ResultSet getRunData() throws SQLException {
-        String sqlQuery="SELECT * FROM t_rundata";
+    private ResultSet getRunData(int runID) throws SQLException {
+        String sqlQuery="SELECT * FROM t_rundata WHERE idRun="+runID+" ORDER BY count";
         return getQueryData(sqlQuery);
     }
 
