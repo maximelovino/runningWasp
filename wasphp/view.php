@@ -8,7 +8,7 @@ if (!isset($_GET["runid"])) {
         die($e->getMessage());
     }
     //get all point from the requested runid
-    $runp = $db->query("SELECT xcoord, ycoord FROM t_rundata WHERE idRun LIKE " . $_GET["runid"] . " ORDER BY `count`")->fetchAll();
+    $runp = $db->query("SELECT DISTINCT xcoord, ycoord FROM t_rundata WHERE idRun LIKE " . $_GET["runid"] . " ORDER BY `count`")->fetchAll();
     $runs = $db->query("SELECT * FROM t_runstats WHERE idRun LIKE " . $_GET["runid"])->fetchAll();
     $time = $runs[0]["distance"] / $runs[0]["speed"];
 }
@@ -73,6 +73,7 @@ if (!isset($_GET["runid"])) {
             <tr><th colspan="2">Statistiques</th></tr>
             <tr><td>Distance</td><td><?php echo round($runs[0]["distance"] / 1000, 2) ?> Km</td></tr>
             <tr><td>Vitesse</td><td><?php echo round($runs[0]["speed"] * 3.6, 2) ?> Km/h</td></tr>
+            <tr><td>Vitesse maximale</td><td><?php echo round($runs[0]["maxSpeed"] * 3.6, 2) ?> Km/h</td></tr>
             <tr><td>Temps</td><td><?php echo floor($time / 3600) != 0 ? floor($time / 3600) .' H' :""?>  <?php echo ($time / 60) % 60 ?> Min</td></tr>
         </table>
         <section id="footer">

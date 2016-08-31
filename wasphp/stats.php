@@ -13,6 +13,7 @@ function computeStats($id) {
         $runp = $db->query("SELECT xcoord, ycoord FROM t_rundata WHERE idRun LIKE " . $id . " ORDER BY `count`")->fetchAll();
         $runt = $db->query("SELECT Seconds FROM t_run WHERE idRun LIKE ". $id)->fetchAll();
         $dist = 0;
+        $mdist = 0;
         $count = 0;
         $oldx = 0.0;
         $oldy = 0.0;
@@ -25,6 +26,9 @@ function computeStats($id) {
                 $a = sin($dphi / 2) * sin($dphi / 2) + cos($phi1) * cos($phi2) * sin($dlam / 2) * sin($dlam / 2);
                 $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
                 $dist += R * $c;
+                if(R * $c > $mdist) {
+                    $mdist = R * $c;
+                }
             }
             $oldx = $p["xcoord"];
             $oldy = $p["ycoord"];
@@ -32,7 +36,7 @@ function computeStats($id) {
         }
         
         $speed = $dist / $runt[0][0];
-        $maxsp = 0;
+        $maxsp = $mdist / 5;
         $ins->execute(array(
             "dist" => $dist,
             "speed" => $speed,
