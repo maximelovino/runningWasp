@@ -1,0 +1,38 @@
+\documentclass[a4paper,11pt]{article}
+\usepackage{amsmath}
+\usepackage[frenchb]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\title{Université d'été - Cahier de labo}
+\author{Ibanez Thomas}
+\begin{document}
+\maketitle
+\section{Lundi 29 août 2016}
+Choix du projet
+Préparation de la présentation
+Discutions sur les technologies à utiliser
+
+\section{Mardi 30 août 2016}
+Implémentation du calcul de la distance via la formule d'Haversine
+\begin{equation*}
+a = sin^2(\frac{\varphi_1 - \varphi_2}{2}) + cos(\varphi_1) * cos(\varphi_2) * sin^2(\frac{\lambda_1 - \lambda_2}{2})
+\end{equation*}
+\begin{equation*}
+d = 2r *arctan\left(\frac{\sqrt{a}}{\sqrt{1-a}}\right)
+\end{equation*}
+Implémentation du calcul de vitesse. \newline
+Utilisation d'un template pour l'application web et amélioration du design
+Ajout d'une table de statistiques à la base de données \newline
+Test de robustesse avec l'insertion de 2000 points \newline
+Ouverture de la redirection de ports sur sampang.internet-box.ch :
+\begin{itemize}
+\item 8080 = Http (80)
+\item 8021 = Ftp (21)
+\item 3306 = BBD (3306)
+\end{itemize}
+\section{Mercredi 31 août 2016}
+Finition de la base de données\newline
+Finition de l'application web et tests\newline
+Test OK
+
+\end{document}
