@@ -72,18 +72,7 @@ public class PHPConnector {
                     while ((inputLine = inStream.readLine())!=null){
                         String[] lineArray = inputLine.split(";");
                         int runID = Integer.valueOf(lineArray[0]);
-                        DateFormat df = new DateFormat() {
-                            @Override
-                            public StringBuffer format(Date date, StringBuffer toAppendTo, FieldPosition fieldPosition) {
-                                return null;
-                            }
-
-                            @Override
-                            public Date parse(String source, ParsePosition pos) {
-                                return null;
-                            }
-                        };
-                        Date date = df.parse(lineArray[1]);
+                        Date date = getDateFromString(lineArray[1]);
                     }
                 }
                 inStream.close();
@@ -92,6 +81,19 @@ public class PHPConnector {
         }catch (Exception e){
             e.printStackTrace();
         }
+    }
+
+    private Date getDateFromString(String stringDate){
+        int year = Integer.valueOf(stringDate.substring(0,5));
+        int month = Integer.valueOf(stringDate.substring(6,8));
+        int day = Integer.valueOf(stringDate.substring(9,11));
+
+        int hours = Integer.valueOf(stringDate.substring(12,14));
+        int minutes = Integer.valueOf(stringDate.substring(15,17));
+        int seconds = Integer.valueOf(stringDate.substring(18,20));
+
+        Date date = new Date(year,month,day,hours,minutes,seconds);
+        return date;
     }
 
 
