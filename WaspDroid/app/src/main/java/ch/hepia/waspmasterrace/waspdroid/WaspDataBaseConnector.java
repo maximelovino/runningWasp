@@ -22,11 +22,12 @@ public class WaspDataBaseConnector {
     public WaspDataBaseConnector(String baseUrl, String dbName, String userName, String password) throws SQLException {
         try {
             Class.forName("com.mysql.jdbc.Driver");
+            System.out.println("Driver ok");
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
 
-        String dbURL="jdbc:mysql://"+baseUrl+"/"+dbName;
+        String dbURL="jdbc:mysql://"+baseUrl+":3306/"+dbName;
         this.dbConnection= DriverManager.getConnection(dbURL,userName,password);
     }
 
