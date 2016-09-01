@@ -10,7 +10,9 @@ import java.net.URLConnection;
 import java.text.DateFormat;
 import java.text.FieldPosition;
 import java.text.ParsePosition;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 
 /**
@@ -72,7 +74,16 @@ public class PHPConnector {
                     while ((inputLine = inStream.readLine())!=null){
                         String[] lineArray = inputLine.split(";");
                         int runID = Integer.valueOf(lineArray[0]);
-                        Date date = getDateFromString(lineArray[1]);
+
+                        DateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+                        Calendar date = Calendar.getInstance();
+                        date.setTime(df.parse(lineArray[1]));
+
+                        int timeOfRun = Integer.valueOf(lineArray[2]);
+
+                        Run run = new Run(runID,date,timeOfRun);
+                        runList.add(run);
+
                     }
                 }
                 inStream.close();
@@ -81,25 +92,14 @@ public class PHPConnector {
         }catch (Exception e){
             e.printStackTrace();
         }
-    }
-
-    private Date getDateFromString(String stringDate){
-        int year = Integer.valueOf(stringDate.substring(0,5));
-        int month = Integer.valueOf(stringDate.substring(6,8));
-        int day = Integer.valueOf(stringDate.substring(9,11));
-
-        int hours = Integer.valueOf(stringDate.substring(12,14));
-        int minutes = Integer.valueOf(stringDate.substring(15,17));
-        int seconds = Integer.valueOf(stringDate.substring(18,20));
-
-        Date date = new Date(year,month,day,hours,minutes,seconds);
-        return date;
+        return runList;
     }
 
 
 
     private String[][] getRunData(int runID){
         //x;y;Count
+
     }
 
 

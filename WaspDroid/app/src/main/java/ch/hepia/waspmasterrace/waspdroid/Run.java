@@ -6,6 +6,7 @@ import android.os.Parcelable;
 import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.DriverManager;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -18,15 +19,15 @@ public class Run{
 
     private int runID;
     private int userID;
-    private Date startDate;
+    private Calendar startDate;
     private int timeOfRun;
     private LinkedHashMap<GPScoordinates,Integer> runData;
 
-    public Run(int runID, Date startDate, int timeOfRun){
+    public Run(int runID, Calendar startDate, int timeOfRun){
         this(runID,1,startDate,timeOfRun);
     }
 
-    public Run(int runID, int userID, Date startDate, int timeOfRun){
+    public Run(int runID, int userID, Calendar startDate, int timeOfRun){
         this.runID = runID;
         this.userID = userID;
         this.startDate = startDate;
