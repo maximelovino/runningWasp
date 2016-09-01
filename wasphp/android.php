@@ -4,7 +4,7 @@ try {
 } catch (Exception $e) {
     die($e->getMessage());
 }
-$listrun = $db->prepare("SELECT idRun, Date FROM t_run WHERE idUser LIKE :uid");
+$listrun = $db->prepare("SELECT idRun, Date, Seconds FROM t_run WHERE idUser LIKE :uid");
 $rundata = $db->prepare("SELECT `xcoord`, `ycoord`, `count` FROM `t_rundata` WHERE `idRun` LIKE :idr ORDER BY `count`");
 
 if (!isset($_GET["uid"])) {
@@ -16,7 +16,7 @@ if (!isset($_GET["uid"])) {
         $a = $listrun->fetchAll();
         foreach ($a as $line) {
             //ID;Date
-            echo $line["idRun"].";".$line["Date"]."\n";
+            echo $line["idRun"].";".$line["Date"].";".$line["Seconds"]."\n";
         }
     } else if(isset($_GET["rundata"]) && isset($_GET["idRun"])) {
         $rundata->bindParam(":idr", $_GET["idRun"]);
