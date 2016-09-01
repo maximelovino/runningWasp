@@ -1,6 +1,10 @@
 <?php
 define("R", 6371e3);
 
+/**
+ * Calculate the statistical data from any run
+ * @param integer $id the id of the run to analyse
+ */
 function computeStats($id) {
     try {
         $db = new PDO('mysql:host=localhost;dbname=waspgps;charset=utf8', 'wasper', 'issou');
