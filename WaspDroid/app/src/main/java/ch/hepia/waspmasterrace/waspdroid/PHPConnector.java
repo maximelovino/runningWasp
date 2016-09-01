@@ -1,7 +1,6 @@
 package ch.hepia.waspmasterrace.waspdroid;
 
 import android.os.AsyncTask;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -99,8 +98,6 @@ public class PHPConnector extends AsyncTask<Void,Void,ArrayList<Run>> {
         String inputLine;
 
         while ((inputLine = inStream.readLine()) != null){
-            System.out.println("ID: "+runID);
-
             if (inputLine.equals(""))
                 continue;
 

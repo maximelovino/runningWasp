@@ -19,4 +19,8 @@ public class GPScoordinates {
     public double getYCoord(){
         return this.yCoord;
     }
+
+    public Double distanceTo(GPScoordinates secondCoordinate){
+        return null;
+    }
 }

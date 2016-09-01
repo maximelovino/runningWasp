@@ -1,16 +1,7 @@
 package ch.hepia.waspmasterrace.waspdroid;
 
-import android.os.Parcel;
-import android.os.Parcelable;
-
-import java.sql.Connection;
-import java.sql.Driver;
-import java.sql.DriverManager;
 import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.Properties;
 
 /**
  * Created by maximelovino on 30/08/16.
@@ -35,6 +26,7 @@ public class Run{
         this.runData = new LinkedHashMap<>();
     }
 
+
     public void addPointOfRun(GPScoordinates coord, int seconds){
         runData.put(coord, seconds);
     }
@@ -47,6 +39,15 @@ public class Run{
         return timeOfRun;
     }
 
+    public Calendar getStartDate(){
+        return this.startDate;
+    }
+
+    public LinkedHashMap<GPScoordinates,Integer> getRunData(){
+        return new LinkedHashMap<>(this.runData);
+    }
+
+    @Override
     public String toString(){
         return "Run "+runID;
     }
