@@ -32,6 +32,7 @@ public class Run{
         this.userID = userID;
         this.startDate = startDate;
         this.timeOfRun = timeOfRun;
+        this.runData = new LinkedHashMap<>();
     }
 
     public void addPointOfRun(GPScoordinates coord, int seconds){
@@ -47,7 +48,7 @@ public class Run{
     }
 
     public String toString(){
-        return "Run "+runID+" on "+startDate;
+        return "Run "+runID;
     }
 
     public void setRunData(LinkedHashMap<GPScoordinates,Integer> newData){

@@ -1,5 +1,7 @@
 package ch.hepia.waspmasterrace.waspdroid;
 
+import android.os.AsyncTask;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -21,7 +23,7 @@ import java.util.LinkedHashMap;
 /**
  * Created by maximelovino on 01/09/16.
  */
-public class PHPConnector {
+public class PHPConnector extends AsyncTask<Void,Void,ArrayList<Run>> {
 
     private String baseURL;
     private int portNumber;
@@ -37,7 +39,7 @@ public class PHPConnector {
         buildServerPath();
     }
 
-    public String getServerPath(){
+    private String getServerPath(){
         return this.serverPath;
     }
 
@@ -45,7 +47,7 @@ public class PHPConnector {
         this.serverPath = this.baseURL +":"+ this.portNumber;
     }
 
-    public ArrayList<Run> getRunList() throws IOException, ParseException {
+    private ArrayList<Run> getRunList() throws IOException, ParseException {
         //runID;DATE
 
         ArrayList<Run> runList = new ArrayList<>();
@@ -60,6 +62,9 @@ public class PHPConnector {
         String inputLine;
         while ((inputLine = inStream.readLine())!=null){
             String[] lineArray = inputLine.split(";");
+            if (inputLine.equals(""))
+                continue;
+
             int runID = Integer.valueOf(lineArray[0]);
 
             DateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
@@ -85,7 +90,7 @@ public class PHPConnector {
         LinkedHashMap<GPScoordinates,Integer> runData = new LinkedHashMap<>();
 
 
-        URL url = new URL("http://"+this.serverPath+"/android.php?rundata&idRun="+runID);
+        URL url = new URL("http://"+this.serverPath+"/android.php?uid=1&rundata&idRun="+runID);
 
         URLConnection urlConnection = url.openConnection();
 
@@ -94,9 +99,14 @@ public class PHPConnector {
         String inputLine;
 
         while ((inputLine = inStream.readLine()) != null){
+            System.out.println("ID: "+runID);
+
+            if (inputLine.equals(""))
+                continue;
+
             String[] lineArray = inputLine.split(";");
-            int x = Integer.valueOf(lineArray[0]);
-            int y = Integer.valueOf(lineArray[1]);
+            double x = Double.valueOf(lineArray[0]);
+            double y = Double.valueOf(lineArray[1]);
 
             GPScoordinates gps = new GPScoordinates(x,y);
 
@@ -107,5 +117,30 @@ public class PHPConnector {
         inStream.close();
 
         return runData;
+    }
+
+
+    /**
+     * Override this method to perform a computation on a background thread. The
+     * specified parameters are the parameters passed to {@link #execute}
+     * by the caller of this task.
+     * <p/>
+     * This method can call {@link #publishProgress} to publish updates
+     * on the UI thread.
+     *
+     * @param params The parameters of the task.
+     * @return A result, defined by the subclass of this task.
+     * @see #onPreExecute()
+     * @see #onPostExecute
+     * @see #publishProgress
+     */
+    @Override
+    protected ArrayList<Run> doInBackground(Void... params) {
+        try {
+            return getRunList();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ArrayList<Run>();
+        }
     }
 }
