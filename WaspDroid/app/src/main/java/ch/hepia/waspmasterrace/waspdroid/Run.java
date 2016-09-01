@@ -50,4 +50,9 @@ public class Run{
         return "Run "+runID+" on "+startDate;
     }
 
+    public void setRunData(LinkedHashMap<GPScoordinates,Integer> newData){
+        this.runData.clear();
+        this.runData.putAll(newData);
+    }
+
 }

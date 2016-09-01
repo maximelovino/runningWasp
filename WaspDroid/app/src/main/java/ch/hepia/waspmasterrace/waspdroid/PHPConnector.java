@@ -9,11 +9,14 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.text.DateFormat;
 import java.text.FieldPosition;
+import java.text.ParseException;
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 /**
  * Created by maximelovino on 01/09/16.
@@ -23,7 +26,6 @@ public class PHPConnector {
     private String baseURL;
     private int portNumber;
     private String serverPath;
-
 
     public PHPConnector(String baseURL){
         this(baseURL,8080);
@@ -43,64 +45,67 @@ public class PHPConnector {
         this.serverPath = this.baseURL +":"+ this.portNumber;
     }
 
-    public ArrayList<Run> getRuns(){
-        ArrayList<Run> runs = new ArrayList<>();
-
-
-        return runs;
-    }
-
-    private ArrayList<Run> getRunList(){
+    public ArrayList<Run> getRunList() throws IOException, ParseException {
         //runID;DATE
 
         ArrayList<Run> runList = new ArrayList<>();
-        URL url = null;
-
-        try{
-            url = new URL("http://"+this.serverPath+"/android.php?uid=1&listrun");
-
-            if (url!=null){
-                URLConnection urlConnection = null;
-
-                urlConnection = url.openConnection();
-
-                BufferedReader inStream = null;
-
-                inStream = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
+        URL url = new URL("http://"+this.serverPath+"/android.php?uid=1&listrun");
 
 
-                String inputLine;
-                if (inStream!=null){
-                    while ((inputLine = inStream.readLine())!=null){
-                        String[] lineArray = inputLine.split(";");
-                        int runID = Integer.valueOf(lineArray[0]);
+        URLConnection urlConnection = url.openConnection();
 
-                        DateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
-                        Calendar date = Calendar.getInstance();
-                        date.setTime(df.parse(lineArray[1]));
+        BufferedReader inStream = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
 
-                        int timeOfRun = Integer.valueOf(lineArray[2]);
 
-                        Run run = new Run(runID,date,timeOfRun);
-                        runList.add(run);
+        String inputLine;
+        while ((inputLine = inStream.readLine())!=null){
+            String[] lineArray = inputLine.split(";");
+            int runID = Integer.valueOf(lineArray[0]);
 
-                    }
-                }
-                inStream.close();
-            }
+            DateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+            Calendar date = Calendar.getInstance();
+            date.setTime(df.parse(lineArray[1]));
 
-        }catch (Exception e){
-            e.printStackTrace();
+            int timeOfRun = Integer.valueOf(lineArray[2]);
+
+            Run run = new Run(runID,date,timeOfRun);
+            run.setRunData(getRunData(run.getRunID()));
+            runList.add(run);
         }
+
+        inStream.close();
+
         return runList;
     }
 
 
 
-    private String[][] getRunData(int runID){
+    private LinkedHashMap<GPScoordinates,Integer> getRunData(int runID) throws IOException {
         //x;y;Count
+        LinkedHashMap<GPScoordinates,Integer> runData = new LinkedHashMap<>();
 
+
+        URL url = new URL("http://"+this.serverPath+"/android.php?rundata&idRun="+runID);
+
+        URLConnection urlConnection = url.openConnection();
+
+        BufferedReader inStream = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
+
+        String inputLine;
+
+        while ((inputLine = inStream.readLine()) != null){
+            String[] lineArray = inputLine.split(";");
+            int x = Integer.valueOf(lineArray[0]);
+            int y = Integer.valueOf(lineArray[1]);
+
+            GPScoordinates gps = new GPScoordinates(x,y);
+
+            int time = (Integer.valueOf(lineArray[2])-1)*5;
+
+            runData.put(gps,time);
+        }
+        inStream.close();
+
+        return runData;
     }
-
-
 }
