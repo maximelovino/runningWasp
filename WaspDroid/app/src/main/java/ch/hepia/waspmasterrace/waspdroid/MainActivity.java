@@ -3,6 +3,7 @@ package ch.hepia.waspmasterrace.waspdroid;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.StrictMode;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -44,6 +45,15 @@ public class MainActivity extends AppCompatActivity {
         final ArrayAdapter<Run> runAdapter = new ArrayAdapter<Run>(this,R.layout.list_run_item,R.id.list_run_item_text,runList);
 
         ListView lView = (ListView) findViewById(R.id.listView);
+        final FloatingActionButton settingsFab = (FloatingActionButton) findViewById(R.id.fab_main);
+
+        settingsFab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(settingsFab.getContext(),SettingsActivity.class);
+                startActivity(intent);
+            }
+        });
 
         lView.setAdapter(runAdapter);
         lView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
