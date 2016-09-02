@@ -1,48 +1,37 @@
 package ch.hepia.waspmasterrace.waspdroid;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
-import android.os.StrictMode;
+import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.Toast;
 
-import java.io.IOException;
-import java.lang.reflect.Array;
-import java.sql.SQLException;
-import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.concurrent.ExecutionException;
 
 public class MainActivity extends AppCompatActivity {
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        String baseUrl = "sampang.internet-box.ch";
-        //baseUrl = "192.168.160.247";
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
 
-        AsyncTask task = new PHPConnector(baseUrl).execute();
+        String baseUrl = prefs.getString(getString(R.string.pref_key_url),getString(R.string.pref_default_url));
 
-        ArrayList<Run> runList = null;
-        try {
-            runList = (ArrayList<Run>) task.get();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        }
+        int portNumber = Integer.valueOf(prefs.getString(getString(R.string.pref_key_port),getString(R.string.pref_default_port)));
 
-
+        ArrayList<Run> runList = new ArrayList<>();
         final ArrayAdapter<Run> runAdapter = new ArrayAdapter<Run>(this,R.layout.list_run_item,R.id.list_run_item_text,runList);
+
+        AsyncTask task = new PHPConnector(baseUrl,portNumber,runAdapter,this).execute();
 
         ListView lView = (ListView) findViewById(R.id.listView);
         final FloatingActionButton settingsFab = (FloatingActionButton) findViewById(R.id.fab_main);

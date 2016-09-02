@@ -1,6 +1,10 @@
 package ch.hepia.waspmasterrace.waspdroid;
 
+import android.content.Context;
 import android.os.AsyncTask;
+import android.widget.ArrayAdapter;
+import android.widget.Toast;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -27,18 +31,22 @@ public class PHPConnector extends AsyncTask<Void,Void,ArrayList<Run>> {
     private String baseURL;
     private int portNumber;
     private String serverPath;
+    private ArrayAdapter<Run> runAdapter;
+    private Context context;
 
-    public PHPConnector(String baseURL){
-        this(baseURL,8080);
+    public PHPConnector(String baseURL, ArrayAdapter<Run> runAdapter, Context context){
+        this(baseURL,8080,runAdapter, context);
     }
 
-    public PHPConnector(String baseURL,int portNumber){
+    public PHPConnector(String baseURL,int portNumber, ArrayAdapter<Run> runAdapter, Context context){
         this.baseURL = baseURL;
         this.portNumber = portNumber;
+        this.runAdapter = runAdapter;
+        this.context = context;
         buildServerPath();
     }
 
-    private String getServerPath(){
+    public String getServerPath(){
         return this.serverPath;
     }
 
@@ -54,6 +62,7 @@ public class PHPConnector extends AsyncTask<Void,Void,ArrayList<Run>> {
 
 
         URLConnection urlConnection = url.openConnection();
+        System.out.println("Connection opened with runList, URL:"+this.serverPath);
 
         BufferedReader inStream = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
 
@@ -61,6 +70,7 @@ public class PHPConnector extends AsyncTask<Void,Void,ArrayList<Run>> {
         String inputLine;
         while ((inputLine = inStream.readLine())!=null){
             String[] lineArray = inputLine.split(";");
+            System.out.println("line: "+inputLine);
             if (inputLine.equals(""))
                 continue;
 
@@ -92,6 +102,7 @@ public class PHPConnector extends AsyncTask<Void,Void,ArrayList<Run>> {
         URL url = new URL("http://"+this.serverPath+"/android.php?uid=1&rundata&idRun="+runID);
 
         URLConnection urlConnection = url.openConnection();
+        System.out.println("Connection opened");
 
         BufferedReader inStream = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
 
@@ -134,10 +145,34 @@ public class PHPConnector extends AsyncTask<Void,Void,ArrayList<Run>> {
     @Override
     protected ArrayList<Run> doInBackground(Void... params) {
         try {
+            System.out.println("syncing");
             return getRunList();
         } catch (Exception e) {
+            System.out.println("fail");
             e.printStackTrace();
-            return new ArrayList<Run>();
+            return null;
+        }
+    }
+
+    /**
+     * <p>Runs on the UI thread after {@link #doInBackground}. The
+     * specified result is the value returned by {@link #doInBackground}.</p>
+     * <p/>
+     * <p>This method won't be invoked if the task was cancelled.</p>
+     *
+     * @param runs The result of the operation computed by {@link #doInBackground}.
+     * @see #onPreExecute
+     * @see #doInBackground
+     * @see #onCancelled(Object)
+     */
+    @Override
+    protected void onPostExecute(ArrayList<Run> runs) {
+        super.onPostExecute(runs);
+        System.out.println("finished sync");
+        if (runs!=null){
+            System.out.println("we've got data");
+            runAdapter.clear();
+            runAdapter.addAll(runs);
         }
     }
 }

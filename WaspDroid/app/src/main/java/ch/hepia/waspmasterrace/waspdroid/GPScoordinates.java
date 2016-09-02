@@ -1,5 +1,7 @@
 package ch.hepia.waspmasterrace.waspdroid;
 
+import java.util.ArrayList;
+
 /**
  * Created by maximelovino on 30/08/16.
  */
@@ -20,7 +22,14 @@ public class GPScoordinates {
         return this.yCoord;
     }
 
+    //TODO get math formula for this
     public Double distanceTo(GPScoordinates secondCoordinate){
+        return null;
+    }
+
+    //TODO add this formula
+    public static GPScoordinates getCenter(ArrayList<GPScoordinates> coordinates){
+
         return null;
     }
 }

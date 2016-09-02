@@ -1,19 +1,19 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
     <EditTextPreference
-        android:defaultValue="sampang.internet-box.ch"
-        android:key="base_url"
-        android:title="Server URL"
-        android:summary="Set the server URL to use to get the run data"
+        android:defaultValue="@string/pref_default_url"
+        android:key="@string/pref_key_url"
+        android:title="@string/pref_title_url"
+        android:summary="@string/pref_summary_url"
         android:inputType="text"
         android:selectAllOnFocus="true"
         android:singleLine="true"
         />
     <EditTextPreference
-        android:defaultValue="8080"
-        android:key="port_number"
-        android:title="Port number"
-        android:summary="Set the port number to use to get the run data"
+        android:defaultValue="@string/pref_default_port"
+        android:key="@string/pref_key_port"
+        android:title="@string/pref_title_port"
+        android:summary="@string/pref_summary_port"
         android:inputType="number"
         android:selectAllOnFocus="true"
         android:singleLine="true"
