@@ -1,5 +1,6 @@
 package ch.hepia.waspmasterrace.waspdroid;
 
+import android.app.Activity;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.widget.ArrayAdapter;
@@ -32,17 +33,17 @@ public class PHPConnector extends AsyncTask<Void,Void,ArrayList<Run>> {
     private int portNumber;
     private String serverPath;
     private ArrayAdapter<Run> runAdapter;
-    private Context context;
+    private MainActivity activity;
 
-    public PHPConnector(String baseURL, ArrayAdapter<Run> runAdapter, Context context){
-        this(baseURL,8080,runAdapter, context);
+    public PHPConnector(String baseURL, ArrayAdapter<Run> runAdapter, MainActivity activity){
+        this(baseURL,8080,runAdapter, activity);
     }
 
-    public PHPConnector(String baseURL,int portNumber, ArrayAdapter<Run> runAdapter, Context context){
+    public PHPConnector(String baseURL,int portNumber, ArrayAdapter<Run> runAdapter, MainActivity activity){
         this.baseURL = baseURL;
         this.portNumber = portNumber;
         this.runAdapter = runAdapter;
-        this.context = context;
+        this.activity = activity;
         buildServerPath();
     }
 
@@ -173,6 +174,8 @@ public class PHPConnector extends AsyncTask<Void,Void,ArrayList<Run>> {
             System.out.println("we've got data");
             runAdapter.clear();
             runAdapter.addAll(runs);
+            if (activity.swipe2Refresh.isRefreshing())
+                activity.swipe2Refresh.setRefreshing(false);
         }
     }
 }
