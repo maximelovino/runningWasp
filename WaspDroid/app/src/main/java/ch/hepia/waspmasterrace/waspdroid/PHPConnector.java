@@ -150,6 +150,8 @@ public class PHPConnector extends AsyncTask<Void,Void,ArrayList<Run>> {
             return getRunList();
         } catch (Exception e) {
             System.out.println("fail");
+
+
             e.printStackTrace();
             return null;
         }
@@ -174,8 +176,12 @@ public class PHPConnector extends AsyncTask<Void,Void,ArrayList<Run>> {
             System.out.println("we've got data");
             runAdapter.clear();
             runAdapter.addAll(runs);
-            if (activity.swipe2Refresh.isRefreshing())
-                activity.swipe2Refresh.setRefreshing(false);
+        }else{
+            System.out.println("hello from null world");
+            Toast.makeText(activity,"Couldn't sync data",Toast.LENGTH_LONG).show();
+            System.out.println("hello from after toast");
         }
+        if (activity.swipe2Refresh.isRefreshing())
+            activity.swipe2Refresh.setRefreshing(false);
     }
 }

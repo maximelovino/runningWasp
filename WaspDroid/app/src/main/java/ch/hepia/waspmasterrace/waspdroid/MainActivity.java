@@ -14,17 +14,24 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 
 public class MainActivity extends AppCompatActivity {
     private ArrayAdapter<Run> runArrayAdapter;
     private ArrayList<Run> runList = new ArrayList<>();
     public SwipeRefreshLayout swipe2Refresh;
 
-
+    //TODO implement onSaveInstanceState and onRestoreInstanceState to keep runData between runs, so we're protected from server shutdown https://developer.android.com/training/basics/activity-lifecycle/recreating.html
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        //Dummy runs for when there is no network
+
+        runList.add(new Run(10, Calendar.getInstance(),2505));
+        runList.add(new Run(30, Calendar.getInstance(),2505));
+        runList.add(new Run(42, Calendar.getInstance(),2505));
 
         runArrayAdapter = new ArrayAdapter<Run>(this,R.layout.list_run_item,R.id.list_run_item_text,runList);
 
@@ -51,9 +58,10 @@ public class MainActivity extends AppCompatActivity {
         lView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                String runString = runArrayAdapter.getItem(position).toString();
-                System.out.println(runString);
-                Intent intent = new Intent(runArrayAdapter.getContext(),DetailView.class).putExtra(Intent.EXTRA_TEXT,runString);
+                Run runToPass=runArrayAdapter.getItem(position);
+                System.out.println(runToPass);
+                Intent intent = new Intent(runArrayAdapter.getContext(),DetailView.class);
+                intent.putExtra("RUN",runToPass);
                 startActivity(intent);
             }
         });
@@ -75,6 +83,4 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    //TODO add refresh manually method, and put all views and variable as instance variables
-    //TODO at the end of the method, signal that the refresh is done using swipe2Refresh.setRefreshing(false)
 }
