@@ -7,14 +7,18 @@ void setup()
     USB.ON();
     USB.println(F("STARTING SETUP")); 
     
-    GPRS_SIM928A._baudRate = 57600;
+    //GPRS_SIM928A._baudRate = 9600;
+    //Utils.setMuxSocket1();
     //GPRS_SIM928A._socket = 0;
     
-    GPRS_SIM928A.ON(); 
+    int lol = GPRS_SIM928A.ON(); 
+    GPRS_SIM928A.begin();
     USB.println(F("GPRS/GPS MODULE ON"));
     
-    GPRS_SIM928A.setMode(GPRS_PRO_FULL);
+    int mod = GPRS_SIM928A.setMode(GPRS_PRO_ON);
     USB.println(F("POWERMODE SET"));
+    
+    USB.println(mod);
     
     GPRS_SIM928A.GPS_ON();
     USB.println(F("FUCKING SETUP IS DONE."));
