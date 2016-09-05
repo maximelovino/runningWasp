@@ -14,6 +14,7 @@ void setup()
     int lol = GPRS_SIM928A.ON(); 
     GPRS_SIM928A.begin();
     USB.println(F("GPRS/GPS MODULE ON"));
+    USB.println(lol);
     
     int mod = GPRS_SIM928A.setMode(GPRS_PRO_ON);
     USB.println(F("POWERMODE SET"));
