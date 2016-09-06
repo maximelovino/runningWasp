@@ -31,12 +31,12 @@ if (!isset($_GET["runid"])) {
                 $xsum += $p["xcoord"];
                 $ysum += $p["ycoord"];
                 $count++;
-                echo 'pathArray.push(new google.maps.LatLng(' . $p["xcoord"] . ',' . $p["ycoord"] . '));' . "\n";
+                echo 'pathArray.push(new google.maps.LatLng(' . $p["ycoord"] . ',' . $p["xcoord"] . '));' . "\n";
             }
             $centerx = $xsum / $count;
             $centery = $ysum / $count;
             ?>
-            var x = new google.maps.LatLng(<?php echo $centerx ?>, <?php echo $centery ?>);
+            var x = new google.maps.LatLng(<?php echo $centery ?>, <?php echo $centerx ?>);
 
             function initialize()
             {
