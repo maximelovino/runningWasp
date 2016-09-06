@@ -63,7 +63,7 @@ public class PHPConnector extends AsyncTask<Void,Void,ArrayList<Run>> {
 
 
         URLConnection urlConnection = url.openConnection();
-        System.out.println("Connection opened with runList, URL:"+this.serverPath);
+        System.out.println("Connection opened with runList, URL:"+url);
 
         BufferedReader inStream = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
 
