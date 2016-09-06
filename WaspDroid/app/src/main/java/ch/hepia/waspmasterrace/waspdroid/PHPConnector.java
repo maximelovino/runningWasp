@@ -95,9 +95,9 @@ public class PHPConnector extends AsyncTask<Void,Void,ArrayList<Run>> {
 
 
 
-    private LinkedHashMap<GPScoordinates,Integer> getRunData(int runID) throws IOException {
+    private LinkedHashMap<Integer,GPScoordinates> getRunData(int runID) throws IOException {
         //x;y;Count
-        LinkedHashMap<GPScoordinates,Integer> runData = new LinkedHashMap<>();
+        LinkedHashMap<Integer,GPScoordinates> runData = new LinkedHashMap<>();
 
 
         URL url = new URL("http://"+this.serverPath+"/android.php?uid=1&rundata&idRun="+runID);
@@ -121,7 +121,7 @@ public class PHPConnector extends AsyncTask<Void,Void,ArrayList<Run>> {
 
             int time = (Integer.valueOf(lineArray[2])-1)*5;
 
-            runData.put(gps,time);
+            runData.put(time,gps);
         }
         inStream.close();
 
