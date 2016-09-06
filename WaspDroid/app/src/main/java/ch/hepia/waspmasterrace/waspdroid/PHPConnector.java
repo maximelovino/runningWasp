@@ -1,7 +1,5 @@
 package ch.hepia.waspmasterrace.waspdroid;
 
-import android.app.Activity;
-import android.content.Context;
 import android.os.AsyncTask;
 import android.widget.ArrayAdapter;
 import android.widget.Toast;
@@ -9,19 +7,13 @@ import android.widget.Toast;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.lang.reflect.Array;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.text.DateFormat;
-import java.text.FieldPosition;
 import java.text.ParseException;
-import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 
 /**
@@ -77,9 +69,11 @@ public class PHPConnector extends AsyncTask<Void,Void,ArrayList<Run>> {
 
             int runID = Integer.valueOf(lineArray[0]);
 
-            DateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+            //HH for 24hrs time, hh for 12hrs
+            DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             Calendar date = Calendar.getInstance();
             date.setTime(df.parse(lineArray[1]));
+            System.out.println("DATE: "+date.getTime());
 
             int timeOfRun = Integer.valueOf(lineArray[2]);
 

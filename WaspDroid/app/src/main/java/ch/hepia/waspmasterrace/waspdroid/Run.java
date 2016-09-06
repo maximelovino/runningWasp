@@ -73,7 +73,7 @@ public class Run implements Serializable{
     }
 
     public URL getURL() throws MalformedURLException {
-        return new URL("http://"+BASE_URL_WEB+":8080/view.php?&runid="+String.valueOf(runID));
+        return new URL("http://"+BASE_URL_WEB+":8080/view.php?runid="+String.valueOf(runID));
     }
     
     public void computeStats(){
