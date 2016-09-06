@@ -2,13 +2,14 @@
 
 #define BASE_URL "http://sampang.internet-box.ch:8080"
 #define GPS_TIMEOUT 200
+#define AT_GPRS_APN "internet"
 
 //temp varible to check errors
 int retr = 0;
 //counter for points
 int pc = 1;
 //sim code for the card
-char simCode[5] = "1337";
+char simCode[5] = "3891";
 //if the setp was successful this should be true
 bool alive = false;
 //if the run should be ended
@@ -16,12 +17,12 @@ bool endrun = false;
 //Concat string
 char tmpString[80];
 //String representation of the x value (longitude)
-//12 because angles can be XXX.XXXXXXX = 11 char + the nul
-char x[12];
+//16 because angles can be SXXX.XXXXXXXXXX = 15 char + the nul
+char x[16];
 //String representation of the y value (latitude)
-char y[12];
+char y[16];
 //String representation of the pc value (counter)
-char pcs[5];
+char pcs[6];
 
 
 /* Setup function
@@ -52,6 +53,7 @@ void setup() {
     retr = GPRS_SIM928A.check(180); 
     if (retr == 1)
     {
+      GPRS_SIM928A.set_APN(AT_GPRS_APN);
       USB.println(F("GPRS+GPS module connected to the network..."));
       // configures GPRS Connection for HTTP or FTP applications: 
       retr = GPRS_SIM928A.configureGPRS_HTTP_FTP(1);
@@ -69,6 +71,8 @@ void setup() {
             USB.println(F("Starting a run..."));
             strcpy(tmpString, BASE_URL);
             strcat(tmpString, "/run.php?uid=1&start");
+            USB.print(F("Contacting "));
+            USB.println(tmpString);
             GPRS_SIM928A.readURL(tmpString, 1);
             alive = true;
           }
@@ -107,10 +111,15 @@ void loop() {
   if(alive) {
     retr = GPRS_SIM928A.getGPSData(1);
     if(retr) 
-    {  
-      sprintf(x, "%.7g", GPRS_SIM928A.longitude);
-      sprintf(y, "%.7g", GPRS_SIM928A.latitude);
+    {
+      Utils.float2String(GPRS_SIM928A.longitude, x, 10);
+      Utils.float2String(GPRS_SIM928A.latitude, y, 10);
       sprintf(pcs, "%i", pc);
+      
+      USB.print(F("Longitude: "));
+      USB.println(GPRS_SIM928A.longitude);
+      USB.print(F("Latitude: "));
+      USB.println(GPRS_SIM928A.latitude);
       //Maybe add altitude and stuff
       //build url
       strcpy(tmpString, BASE_URL);
@@ -120,7 +129,8 @@ void loop() {
       strcat(tmpString, y);
       strcat(tmpString, "&time=");
       strcat(tmpString, pcs);
-
+      USB.print(F("Contacting "));
+      USB.println(tmpString);
       GPRS_SIM928A.readURL(tmpString, 1);
     }
     //counter increments, even if the gps fails, to keep data integrity
@@ -144,6 +154,7 @@ void loop() {
     strcat(tmpString, "&end");
     GPRS_SIM928A.readURL(tmpString, 1);
     alive = false;
+    USB.println(F("Run stopped !"));
   }
 
 }
