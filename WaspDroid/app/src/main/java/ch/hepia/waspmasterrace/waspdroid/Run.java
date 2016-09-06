@@ -8,6 +8,7 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 
@@ -54,8 +55,8 @@ public class Run implements Serializable{
         return timeOfRun;
     }
 
-    public Calendar getStartDate(){
-        return this.startDate;
+    public Date getStartDate(){
+        return this.startDate.getTime();
     }
 
     public LinkedHashMap<Integer,GPScoordinates> getRunData(){

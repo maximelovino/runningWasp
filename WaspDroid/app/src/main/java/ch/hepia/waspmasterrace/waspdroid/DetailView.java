@@ -12,9 +12,7 @@ import java.net.MalformedURLException;
 
 public class DetailView extends AppCompatActivity {
     private Run run;
-
-    //TODO add share action here https://developer.android.com/training/sharing/shareaction.html
-    //TODO menu can be invoked only on fragment...so use FAB or create fragment
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -22,9 +20,11 @@ public class DetailView extends AppCompatActivity {
         System.out.println("we're in detail view");
         this.run = (Run) getIntent().getSerializableExtra("RUN");
 
-        TextView txtView = (TextView) findViewById(R.id.detail_view_text);
+        TextView nameTxt = (TextView) findViewById(R.id.run_name_detail);
+        TextView dateTxt = (TextView) findViewById(R.id.run_date_detail);
 
-        txtView.setText(run.toString());
+        nameTxt.setText(run.toString());
+        dateTxt.setText(run.getStartDate().toString());
         run.computeStats();
 
     }
