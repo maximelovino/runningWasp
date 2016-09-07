@@ -113,9 +113,10 @@ public class PHPConnector extends AsyncTask<Void,Void,ArrayList<Run>> {
 
             GPScoordinates gps = new GPScoordinates(x,y);
 
-            int time = (Integer.valueOf(lineArray[2])-1)*5;
+            //int time = (Integer.valueOf(lineArray[2])-1)*5;
+            int count = Integer.valueOf(lineArray[2]);
 
-            runData.put(time,gps);
+            runData.put(count,gps);
         }
         inStream.close();
 

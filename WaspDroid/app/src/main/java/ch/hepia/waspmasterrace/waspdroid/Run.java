@@ -76,22 +76,34 @@ public class Run implements Serializable{
     public URL getURL() throws MalformedURLException {
         return new URL("http://"+BASE_URL_WEB+":8080/view.php?runid="+String.valueOf(runID));
     }
+
+    public ArrayList<GPScoordinates> getSortedListOfPoints(){
+        ArrayList<GPScoordinates> points = new ArrayList<>();
+        System.out.println("DATA for run "+runID+": "+this.runData);
+        ArrayList<Integer> keys = new ArrayList<>(this.runData.keySet());
+
+        Collections.sort(keys);
+        System.out.println("keys: "+keys);
+        for (int i=0;i<keys.size();i++){
+            points.add(this.runData.get(keys.get(i)));
+            System.out.println("point "+i+" "+this.runData.get(keys.get(i)));
+        }
+
+        return points;
+    }
     
     public void computeStats(){
         System.out.println("Computing stats");
         double dist = 0;
         double maxDistance = 0;
 
-        ArrayList<Integer> keys = new ArrayList(this.runData.keySet());
+        ArrayList<GPScoordinates> points = getSortedListOfPoints();
 
-        Collections.sort(keys);
 
-        for (int i = 0;i<keys.size()-1;i++){
-            int key1 = keys.get(i);
-            int key2 = keys.get(i+1);
+        for (int i = 0;i<points.size()-1;i++){
 
-            GPScoordinates gps1 = this.runData.get(key1);
-            GPScoordinates gps2 = this.runData.get(key2);
+            GPScoordinates gps1 = points.get(i);
+            GPScoordinates gps2 = points.get(i+1);
 
             double tempDist = gps1.distanceTo(gps2);
 

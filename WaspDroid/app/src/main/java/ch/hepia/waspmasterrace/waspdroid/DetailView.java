@@ -12,7 +12,7 @@ import java.net.MalformedURLException;
 
 public class DetailView extends AppCompatActivity {
     private Run run;
-    
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
