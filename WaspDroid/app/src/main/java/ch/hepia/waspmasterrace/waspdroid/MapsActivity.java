@@ -43,10 +43,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         ArrayList<GPScoordinates> points = run.getSortedListOfPoints();
+        //mMap.setMyLocationEnabled(true);
 
         if (!points.isEmpty()) {
-
-
             LatLngBounds.Builder builder = new LatLngBounds.Builder();
 
 
