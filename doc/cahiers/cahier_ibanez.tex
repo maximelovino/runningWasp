@@ -3,6 +3,7 @@
 \usepackage[frenchb]{babel}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
+\usepackage{amssymb}
 \title{Université d'été - Cahier de labo}
 \author{Ibanez Thomas}
 \begin{document}
@@ -44,8 +45,26 @@ Résolution du problème du module GPS+GPRS (absence de batterie) \newline
 Création du code principal (fetch gps et envoi au serveur) \newline
 
 \section{Mardi 6 septembre 2016}
-Résolution de quelques bgs (inversion lat-long et APN) \newline
+Résolution de quelques bugs (inversion lat-long et APN) \newline
 Test du code: Ok !
 
-
+\section{Mercredi 7 septembre 2016}
+Implémentation d'un code correcteur d'erreurs via la formule suivante
+Soit P un ensemble de points
+\begin{equation*}
+P \subset \mathbb{R}^2
+\end{equation*}
+On calcule la moyenne des points de P
+\begin{equation*}
+a = \frac{\sum\limits_{i=0}^{|P|} p_i}{|P|}
+\end{equation*}
+Si la distance entre un point p et la moyenne est supérieur à un seuil T, on le retire de l'ensemble
+\begin{equation*}
+\forall p \in P : si ||p-a|| > T  alors  P = P\backslash\{p\}
+\end{equation*}
+On recalcule la moyenne du nouvel ensemble
+\begin{equation*}
+f = \frac{\sum\limits_{i=0}^{|P|} p_i}{|P|}
+\end{equation*}
+Le but de ce code est d'éviter qu'un problème venant du GPS (par exemple un faux point ne 
 \end{document}

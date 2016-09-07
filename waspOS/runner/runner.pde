@@ -3,7 +3,7 @@
 #define BASE_URL "http://sampang.internet-box.ch:8080"
 #define GPS_TIMEOUT 200
 #define AT_GPRS_APN "internet"
-#define THRESHOLD 0.001
+#define THRESHOLD 0.000001
 
 //temp varible to check errors
 int retr = 0;
@@ -122,6 +122,8 @@ void loop() {
     i = 0;
     k = 0;
     cnt = 0;
+    a[0] = 0;
+    a[1] = 0;
     while(i < 5) {
       retr = GPRS_SIM928A.getGPSData(1);
       if(retr) 
@@ -133,61 +135,65 @@ void loop() {
         i++;
       }
     }
-    
     a[0] /= i;
     a[1] /= i;
     USB.print(F("Average1: "));
     USB.print(a[0]);
     USB.print(F(", "));
     USB.println(a[1]);
-    
+
     for(k = 0; k < i;k++) {
       if(sqrt((P[k][0] - a[0])*(P[k][0] - a[0])+(P[k][1] - a[1])*(P[k][1] - a[1])) > THRESHOLD) {
         P[k][0] = -200;
-      } else {
+      } 
+      else {
         cnt++;
       }
     }
+
     a[0] = 0;
-    a[1] = 0;
+    a[1] = 0;
+
     for(k = 0; k < i; k++) {
       if(P[k][0] != -200) {
         a[0] += P[k][0];
         a[1] += P[k][1];
       }
     }
-    
+
     a[0] /= cnt;
     a[1] /= cnt;
-    
+
     USB.print(F("Average2: "));
     USB.print(a[0]);
     USB.print(F(", "));
     USB.println(a[1]);
-    
-    Utils.float2String(a[0], x, 10);
-    Utils.float2String(a[1], y, 10);
-    sprintf(pcs, "%i", pc);
-    //Maybe add altitude and stuff
-    //build url
-    strcpy(tmpString, BASE_URL);
-    strcat(tmpString, "/run.php?uid=1&x=");
-    strcat(tmpString, x);
-    strcat(tmpString, "&y=");
-    strcat(tmpString, y);
-    strcat(tmpString, "&time=");
-    strcat(tmpString, pcs);
-    USB.print(F("Contacting "));
-    USB.println(tmpString);
-    GPRS_SIM928A.readURL(tmpString, 1);
 
-    //counter increments, even if the gps fails, to keep data integrity
-    pc++;
-    //purely fake condition to determine if the run should end while we dont have a button
-    if(pc > 20) 
-    {
-      endrun = true;
-    }
+    if(cnt > 0) {
+      Utils.float2String(a[0], x, 10);
+      Utils.float2String(a[1], y, 10);
+      sprintf(pcs, "%i", pc);
+      //Maybe add altitude and stuff
+      //build url
+      strcpy(tmpString, BASE_URL);
+      strcat(tmpString, "/run.php?uid=1&x=");
+      strcat(tmpString, x);
+      strcat(tmpString, "&y=");
+      strcat(tmpString, y);
+      strcat(tmpString, "&time=");
+      strcat(tmpString, pcs);
+      USB.print(F("Contacting "));
+      USB.println(tmpString);
+      GPRS_SIM928A.readURL(tmpString, 1);
+
+      //counter increments, even if the gps fails, to keep data integrity
+      pc++;
+      //purely fake condition to determine if the run should end while we dont have a button
+      if(pc > 20) 
+      {
+        endrun = true;
+      }
+    } 
   }
 
   if(endrun && alive) 
@@ -204,6 +210,7 @@ void loop() {
   }
 
 }
+
 
 
 
