@@ -36,8 +36,8 @@ void loop()
 {  
   delay(100);
   
-  printString("GET /run.php?uid=1&start HTTP/1.1\r\nHost: sampang.internet-box.ch\r\nConnection: keep-alive\r\n\r\n", 1);
-  delay(5000);
+  printString("GET /run.php?uid=1&start HTTP/1.1\r\nHost: sampang.internet-box.ch\r\nConnection: keep-alive\r\n\r\n>", 1);
+  delay(10000);
   USB.println("Received data");
   while(serialAvailable(1))
   {
@@ -47,7 +47,7 @@ void loop()
   delay(100);
   
   printString("GET /run.php?uid=1&x=7&y=9&time=1 HTTP/1.1\r\nHost: sampang.internet-box.ch\r\nConnection: keep-alive\r\n\r\n", 1);
-  delay(5000);
+  delay(10000);
   USB.println("Received data");
   while(serialAvailable(1))
   {
@@ -57,7 +57,7 @@ void loop()
   delay(100);
   
   printString("GET /run.php?uid=1&time=2&end HTTP/1.1\r\nHost: sampang.internet-box.ch\r\nConnection: keep-alive\r\n\r\n", 1);
-  delay(5000);
+  delay(10000);
   USB.println("Received data");
   while(serialAvailable(1))
   {
@@ -66,6 +66,7 @@ void loop()
   
   
   USB.println("SLEEP MODE");
+  closeSerial(1);
   delay(5000000);
 }
 
