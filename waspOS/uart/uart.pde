@@ -4,46 +4,69 @@
 //Basic UART communication example
 void setup()
 {
+  char carriageReturn = 13;
   // Configures internal multiplexer
   Utils.setMuxAux1();
   // Configures baudrate
-  beginSerial(115200,1);
+  beginSerial(115200, 1);
   serialFlush(1);  //clear buffers
 
-  delay(500);
+  printString("$$$", 1);
+  delay(400);
+  while(serialAvailable(1))
+  {
+    USB.println((char)serialRead(1));
+  }
+  printString("open sampang.internet-box.ch 8080\r\n", 1);
+  delay(200);
+  while(serialAvailable(1))
+  {
+    USB.println((char)serialRead(1));
+  }
+  
+  delay(5000);
+  printString("exit\r\n", 1);
+  while(serialAvailable(1))
+  {
+    USB.println((char)serialRead(1));
+  }
 }
 
 void loop()
-{
-
-  int a = 0x41;    
-  char b = 'B';    
-
-  // Sends a string through UART1  
-  printString("dada",1);
-
-  // Sends int a five times.
-  for(int i=0; i<5;i++){
-    printHex(a,1);
-    delay(50);
-  }
-  delay(1000);
-
-  // Sends char b five times.
-  for(int i=0; i<5;i++){
-    printByte(b,1);
-    delay(50);
-  }
-
-  // Check if data is available on RX buffer of UART1 and prints it.
-  // (sended from PC through the gateway, to Waspmote)
-
+{  
+  delay(100);
+  
+  printString("GET /run.php?uid=1&start HTTP/1.1\r\nHost: sampang.internet-box.ch\r\nConnection: keep-alive\r\n\r\n", 1);
+  delay(5000);
   USB.println("Received data");
   while(serialAvailable(1))
   {
-    USB.println(serialRead(1));
+    USB.println((char)serialRead(1));
   }
+  
+  delay(100);
+  
+  printString("GET /run.php?uid=1&x=7&y=9&time=1 HTTP/1.1\r\nHost: sampang.internet-box.ch\r\nConnection: keep-alive\r\n\r\n", 1);
   delay(5000);
+  USB.println("Received data");
+  while(serialAvailable(1))
+  {
+    USB.println((char)serialRead(1));
+  }
+  
+  delay(100);
+  
+  printString("GET /run.php?uid=1&time=2&end HTTP/1.1\r\nHost: sampang.internet-box.ch\r\nConnection: keep-alive\r\n\r\n", 1);
+  delay(5000);
+  USB.println("Received data");
+  while(serialAvailable(1))
+  {
+    USB.println((char)serialRead(1));
+  }
+  
+  
+  USB.println("SLEEP MODE");
+  delay(5000000);
 }
 
 

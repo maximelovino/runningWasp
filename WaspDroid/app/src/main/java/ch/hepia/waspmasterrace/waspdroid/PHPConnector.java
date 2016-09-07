@@ -1,7 +1,5 @@
 package ch.hepia.waspmasterrace.waspdroid;
 
-import android.app.Activity;
-import android.content.Context;
 import android.os.AsyncTask;
 import android.widget.ArrayAdapter;
 import android.widget.Toast;
@@ -9,19 +7,13 @@ import android.widget.Toast;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.lang.reflect.Array;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.text.DateFormat;
-import java.text.FieldPosition;
 import java.text.ParseException;
-import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 
 /**
@@ -63,7 +55,7 @@ public class PHPConnector extends AsyncTask<Void,Void,ArrayList<Run>> {
 
 
         URLConnection urlConnection = url.openConnection();
-        System.out.println("Connection opened with runList, URL:"+this.serverPath);
+        System.out.println("Connection opened with runList, URL:"+url);
 
         BufferedReader inStream = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
 
@@ -77,9 +69,11 @@ public class PHPConnector extends AsyncTask<Void,Void,ArrayList<Run>> {
 
             int runID = Integer.valueOf(lineArray[0]);
 
-            DateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+            //HH for 24hrs time, hh for 12hrs
+            DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             Calendar date = Calendar.getInstance();
             date.setTime(df.parse(lineArray[1]));
+            System.out.println("DATE: "+date.getTime());
 
             int timeOfRun = Integer.valueOf(lineArray[2]);
 
@@ -95,9 +89,9 @@ public class PHPConnector extends AsyncTask<Void,Void,ArrayList<Run>> {
 
 
 
-    private LinkedHashMap<GPScoordinates,Integer> getRunData(int runID) throws IOException {
+    private LinkedHashMap<Integer,GPScoordinates> getRunData(int runID) throws IOException {
         //x;y;Count
-        LinkedHashMap<GPScoordinates,Integer> runData = new LinkedHashMap<>();
+        LinkedHashMap<Integer,GPScoordinates> runData = new LinkedHashMap<>();
 
 
         URL url = new URL("http://"+this.serverPath+"/android.php?uid=1&rundata&idRun="+runID);
@@ -121,7 +115,7 @@ public class PHPConnector extends AsyncTask<Void,Void,ArrayList<Run>> {
 
             int time = (Integer.valueOf(lineArray[2])-1)*5;
 
-            runData.put(gps,time);
+            runData.put(time,gps);
         }
         inStream.close();
 

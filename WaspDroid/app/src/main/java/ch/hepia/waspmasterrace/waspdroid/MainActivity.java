@@ -61,7 +61,9 @@ public class MainActivity extends AppCompatActivity {
                 Run runToPass=runArrayAdapter.getItem(position);
                 System.out.println(runToPass);
                 Intent intent = new Intent(runArrayAdapter.getContext(),DetailView.class);
+                System.out.println("intent created");
                 intent.putExtra("RUN",runToPass);
+                System.out.println("runAdded");
                 startActivity(intent);
             }
         });
