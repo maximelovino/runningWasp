@@ -92,6 +92,10 @@ public class DetailView extends AppCompatActivity {
                     e.printStackTrace();
                 }
                 return true;
+            case R.id.show_on_maps:
+                Intent mapIntent = new Intent(this,MapsActivity.class);
+                mapIntent.putExtra("RUN",run);
+                startActivity(mapIntent);
             default:
                 return super.onOptionsItemSelected(item);
         }

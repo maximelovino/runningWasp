@@ -42,23 +42,27 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-
-        LatLngBounds.Builder builder = new LatLngBounds.Builder();
-
         ArrayList<GPScoordinates> points = run.getSortedListOfPoints();
 
-        LatLng centerMaps = GPScoordinates.getCenter(points).getForMaps();
+        if (!points.isEmpty()) {
 
-        PolylineOptions poly = new PolylineOptions();
 
-        for (GPScoordinates point : points) {
-            LatLng mapPoint = point.getForMaps();
-            poly.add(mapPoint);
-            builder.include(mapPoint);
+            LatLngBounds.Builder builder = new LatLngBounds.Builder();
+
+
+            LatLng centerMaps = GPScoordinates.getCenter(points).getForMaps();
+
+            PolylineOptions poly = new PolylineOptions();
+
+            for (GPScoordinates point : points) {
+                LatLng mapPoint = point.getForMaps();
+                poly.add(mapPoint);
+                builder.include(mapPoint);
+            }
+            LatLngBounds bounds = builder.build();
+            mMap.addPolyline(poly);
+            mMap.moveCamera(CameraUpdateFactory.newLatLng(centerMaps));
+            mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, 100));
         }
-        LatLngBounds bounds = builder.build();
-        mMap.addPolyline(poly);
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(centerMaps));
-        mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds,100));
     }
 }
