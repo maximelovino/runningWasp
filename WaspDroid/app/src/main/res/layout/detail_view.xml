@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
 
@@ -13,20 +14,27 @@
         android:layout_column="0"
         android:layout_rowWeight="0.5" />
 
-    <LinearLayout
-        android:orientation="vertical"
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_row="33"
         android:layout_column="0"
         android:layout_rowWeight="0.5">
 
-        <TextView
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc a faucibus purus. Aenean eu mauris nec augue tempus euismod. Praesent quam lacus, feugiat sed venenatis sit amet, faucibus ut lacus. Suspendisse sit amet quam ultrices, efficitur purus eget, tincidunt velit. Etiam efficitur rutrum consequat. Vestibulum fermentum nibh nibh, eget vestibulum ligula cursus laoreet. Cras pellentesque venenatis leo ut dictum. Vivamus fringilla ante leo, vitae posuere risus vulputate porttitor. Duis eu turpis non tellus hendrerit finibus."
-            android:id="@+id/textView" />
-    </LinearLayout>
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam eget nibh ligula. Integer feugiat at lacus et fermentum. Cras rhoncus lorem libero, at sollicitudin lacus volutpat non. Pellentesque consequat nibh vel malesuada sodales. In quis vehicula urna. Ut lobortis odio lacus, nec dapibus metus scelerisque eget. Ut non scelerisque est. Nunc imperdiet volutpat elit, vel fermentum lacus porttitor vel. Etiam tempor, nisl sed vestibulum ullamcorper, mauris lorem dictum arcu, eu dapibus dui arcu nec nisl. Quisque blandit semper ligula, eu aliquet elit. In elementum sit amet quam vitae maximus. Phasellus ullamcorper mauris et velit consequat, vitae elementum ipsum sollicitudin. Proin malesuada lorem ac purus feugiat, at molestie metus scelerisque. Nulla facilisi. Etiam nisl dolor, eleifend sed sollicitudin id, semper nec augue."
+                android:id="@+id/textView" />
+
+        </LinearLayout>
+    </ScrollView>
+
 
 </GridLayout>

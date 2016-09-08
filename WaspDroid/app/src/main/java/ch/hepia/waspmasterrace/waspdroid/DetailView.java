@@ -13,12 +13,14 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.net.MalformedURLException;
@@ -39,13 +41,13 @@ public class DetailView extends AppCompatActivity implements OnMapReadyCallback 
 
         MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map_detail_view);
 
-        mapFragment.getMapAsync(this);
 
 
         ActionBar actionBar = getSupportActionBar();
 
         actionBar.setSubtitle(run.toString());
 
+        mapFragment.getMapAsync(this);
 
         //TextView nameTxt = (TextView) findViewById(R.id.run_name);
         //TextView dateTxt = (TextView) findViewById(R.id.run_date_detail);
@@ -173,10 +175,23 @@ public class DetailView extends AppCompatActivity implements OnMapReadyCallback 
                 poly.add(mapPoint);
                 builder.include(mapPoint);
             }
-            LatLngBounds bounds = builder.build();
+            final LatLngBounds bounds = builder.build();
             mMap.addPolyline(poly);
-            mMap.moveCamera(CameraUpdateFactory.newLatLng(centerMaps));
-            mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, 100));
+
+            // We add a marker to denote the start of the run
+            mMap.addMarker(new MarkerOptions().position(points.get(0).getForMaps()).title("Start point"));
+
+            // We wait for the map to load before settings the bound, otherwise it results in a crash
+            mMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
+                @Override
+                public void onMapLoaded() {
+                    CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds,100);
+                    mMap.animateCamera(cu);
+
+                }
+            });
+
+
         }
     }
 
