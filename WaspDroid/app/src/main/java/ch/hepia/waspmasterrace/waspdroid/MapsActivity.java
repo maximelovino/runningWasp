@@ -22,8 +22,8 @@ import java.util.ArrayList;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
-    private GoogleMap mMap;
     private Run run;
+    private GoogleMap mMap;
     private final int REQUEST_LOCATION_CODE = 42;
 
     @Override

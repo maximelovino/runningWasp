@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <fragment
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:name="com.google.android.gms.maps.MapFragment"
+        android:id="@+id/map_detail_view"
+        android:layout_row="0"
+        android:layout_column="0"
+        android:layout_rowWeight="0.5" />
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_row="33"
+        android:layout_column="0"
+        android:layout_rowWeight="0.5">
+
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc a faucibus purus. Aenean eu mauris nec augue tempus euismod. Praesent quam lacus, feugiat sed venenatis sit amet, faucibus ut lacus. Suspendisse sit amet quam ultrices, efficitur purus eget, tincidunt velit. Etiam efficitur rutrum consequat. Vestibulum fermentum nibh nibh, eget vestibulum ligula cursus laoreet. Cras pellentesque venenatis leo ut dictum. Vivamus fringilla ante leo, vitae posuere risus vulputate porttitor. Duis eu turpis non tellus hendrerit finibus."
+            android:id="@+id/textView" />
+    </LinearLayout>
+
+</GridLayout>
