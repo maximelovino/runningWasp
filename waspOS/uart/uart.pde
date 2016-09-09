@@ -13,60 +13,56 @@ void setup()
 
   printString("$$$", 1);
   delay(400);
+  printNewline(1);
   while(serialAvailable(1))
   {
     USB.println((char)serialRead(1));
   }
-  printString("open sampang.internet-box.ch 8080\r\n", 1);
-  delay(200);
+  delay(1000);
+  printString("open\r\n", 1);
+  delay(2000);
   while(serialAvailable(1))
   {
     USB.println((char)serialRead(1));
   }
   
   delay(5000);
-  printString("exit\r\n", 1);
-  while(serialAvailable(1))
-  {
-    USB.println((char)serialRead(1));
-  }
 }
 
 void loop()
-{  
-  delay(100);
+{
+  printString("/start;1", 1);
+  delay(10);
+  printString("/run;12;4;1;1", 1);
+  delay(10);
+  printString("/run;12;3;2;1", 1);
+  delay(10);
+  printString("/run;12;2;3;1", 1);
+  delay(10);
+  printString("/end;1;63", 1);
   
-  printString("GET /run.php?uid=1&start HTTP/1.1\r\nHost: sampang.internet-box.ch\r\nConnection: keep-alive\r\n\r\n>", 1);
+  
   delay(10000);
-  USB.println("Received data");
+  printString("$$$", 1);
+  delay(400);
   while(serialAvailable(1))
   {
     USB.println((char)serialRead(1));
   }
-  
-  delay(100);
-  
-  printString("GET /run.php?uid=1&x=7&y=9&time=1 HTTP/1.1\r\nHost: sampang.internet-box.ch\r\nConnection: keep-alive\r\n\r\n", 1);
-  delay(10000);
-  USB.println("Received data");
+  printString("close\r\n", 1);
+  delay(200);
   while(serialAvailable(1))
   {
     USB.println((char)serialRead(1));
   }
-  
-  delay(100);
-  
-  printString("GET /run.php?uid=1&time=2&end HTTP/1.1\r\nHost: sampang.internet-box.ch\r\nConnection: keep-alive\r\n\r\n", 1);
-  delay(10000);
-  USB.println("Received data");
+  printString("exit\r\n", 1);
+  delay(200);
   while(serialAvailable(1))
   {
     USB.println((char)serialRead(1));
   }
-  
   
   USB.println("SLEEP MODE");
-  closeSerial(1);
   delay(5000000);
 }
 
