@@ -38,7 +38,7 @@ public class Server {
 				System.out.println("[Server] Connected with "+clientSocket.getInetAddress());
 			} catch (IOException e) {
 				e.printStackTrace();
-			}			
+			}
 		}
 	}
 	

@@ -24,6 +24,8 @@ char x[16];
 char y[16];
 //String representation of the pc value (counter)
 char pcs[6];
+//String representation of the seconds elapsed
+char time[6];
 //Array of GPS points
 float P[5][2];
 
@@ -34,6 +36,8 @@ float a[2];
 int cnt = 0;
 
 int k = 0;
+
+
 
 /* Setup function
  * Initialize all modules check for errors
@@ -119,81 +123,7 @@ void setup() {
  */
 void loop() {
   if(alive) {
-    i = 0;
-    k = 0;
-    cnt = 0;
-    a[0] = 0;
-    a[1] = 0;
-    while(i < 5) {
-      retr = GPRS_SIM928A.getGPSData(1);
-      if(retr) 
-      {
-        P[i][0] = GPRS_SIM928A.longitude;
-        P[i][1] = GPRS_SIM928A.latitude;
-        a[0] += GPRS_SIM928A.longitude;
-        a[1] += GPRS_SIM928A.latitude;
-        i++;
-      }
-    }
-    a[0] /= i;
-    a[1] /= i;
-    USB.print(F("Average1: "));
-    USB.print(a[0]);
-    USB.print(F(", "));
-    USB.println(a[1]);
-
-    for(k = 0; k < i;k++) {
-      if(sqrt((P[k][0] - a[0])*(P[k][0] - a[0])+(P[k][1] - a[1])*(P[k][1] - a[1])) > THRESHOLD) {
-        P[k][0] = -200;
-      } 
-      else {
-        cnt++;
-      }
-    }
-
-    a[0] = 0;
-    a[1] = 0;
-
-    for(k = 0; k < i; k++) {
-      if(P[k][0] != -200) {
-        a[0] += P[k][0];
-        a[1] += P[k][1];
-      }
-    }
-
-    a[0] /= cnt;
-    a[1] /= cnt;
-
-    USB.print(F("Average2: "));
-    USB.print(a[0]);
-    USB.print(F(", "));
-    USB.println(a[1]);
-
-    if(cnt > 0) {
-      Utils.float2String(a[0], x, 10);
-      Utils.float2String(a[1], y, 10);
-      sprintf(pcs, "%i", pc);
-      //Maybe add altitude and stuff
-      //build url
-      strcpy(tmpString, BASE_URL);
-      strcat(tmpString, "/run.php?uid=1&x=");
-      strcat(tmpString, x);
-      strcat(tmpString, "&y=");
-      strcat(tmpString, y);
-      strcat(tmpString, "&time=");
-      strcat(tmpString, pcs);
-      USB.print(F("Contacting "));
-      USB.println(tmpString);
-      GPRS_SIM928A.readURL(tmpString, 1);
-
-      //counter increments, even if the gps fails, to keep data integrity
-      pc++;
-      //purely fake condition to determine if the run should end while we dont have a button
-      if(pc > 20) 
-      {
-        endrun = true;
-      }
-    } 
+    updateGPS();
   }
 
   if(endrun && alive) 
@@ -208,8 +138,89 @@ void loop() {
     alive = false;
     USB.println(F("Run stopped !"));
   }
-
 }
+
+void updateGPS() {
+  i = 0;
+  k = 0;
+  cnt = 0;
+  a[0] = 0;
+  a[1] = 0;
+  while(i < 5) {
+    retr = GPRS_SIM928A.getGPSData(1);
+    if(retr) 
+    {
+      P[i][0] = GPRS_SIM928A.longitude;
+      P[i][1] = GPRS_SIM928A.latitude;
+      a[0] += GPRS_SIM928A.longitude;
+      a[1] += GPRS_SIM928A.latitude;
+      i++;
+    }
+  }
+  a[0] /= i;
+  a[1] /= i;
+  USB.print(F("Average1: "));
+  USB.print(a[0]);
+  USB.print(F(", "));
+  USB.println(a[1]);
+
+  for(k = 0; k < i;k++) {
+    if(sqrt((P[k][0] - a[0])*(P[k][0] - a[0])+(P[k][1] - a[1])*(P[k][1] - a[1])) > THRESHOLD) {
+      P[k][0] = -200;
+    } 
+    else {
+      cnt++;
+    }
+  }
+
+  a[0] = 0;
+  a[1] = 0;
+
+  for(k = 0; k < i; k++) {
+    if(P[k][0] != -200) {
+      a[0] += P[k][0];
+      a[1] += P[k][1];
+    }
+  }
+
+  a[0] /= cnt;
+  a[1] /= cnt;
+
+  USB.print(F("Average2: "));
+  USB.print(a[0]);
+  USB.print(F(", "));
+  USB.println(a[1]);
+
+  if(cnt > 0) {
+    Utils.float2String(a[0], x, 10);
+    Utils.float2String(a[1], y, 10);
+    sprintf(pcs, "%i", pc);
+    sprintf(time, "%i", millis() / 1000);
+    //Maybe add altitude and stuff
+    //build url
+    strcpy(tmpString, BASE_URL);
+    strcat(tmpString, "/run.php?uid=1&x=");
+    strcat(tmpString, x);
+    strcat(tmpString, "&y=");
+    strcat(tmpString, y);
+    strcat(tmpString, "&time=");
+    strcat(tmpString, time);
+    strcat(tmpString, "&cnt=");
+    strcat(tmpString, pcs);
+    USB.print(F("Contacting "));
+    USB.println(tmpString);
+    GPRS_SIM928A.readURL(tmpString, 1);
+
+    //counter increments, even if the gps fails, to keep data integrity
+    pc++;
+    //purely fake condition to determine if the run should end while we dont have a button
+    if(pc > 20) 
+    {
+      endrun = true;
+    }
+  } 
+}
+
 
 
 
