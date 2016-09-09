@@ -22,18 +22,144 @@
         android:layout_rowWeight="0.5">
 
         <LinearLayout
-            android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:paddingLeft="@dimen/activity_horizontal_margin"
+            android:paddingRight="@dimen/activity_horizontal_margin">
 
-            <TextView
-                android:layout_width="fill_parent"
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceLarge"
-                android:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam eget nibh ligula. Integer feugiat at lacus et fermentum. Cras rhoncus lorem libero, at sollicitudin lacus volutpat non. Pellentesque consequat nibh vel malesuada sodales. In quis vehicula urna. Ut lobortis odio lacus, nec dapibus metus scelerisque eget. Ut non scelerisque est. Nunc imperdiet volutpat elit, vel fermentum lacus porttitor vel. Etiam tempor, nisl sed vestibulum ullamcorper, mauris lorem dictum arcu, eu dapibus dui arcu nec nisl. Quisque blandit semper ligula, eu aliquet elit. In elementum sit amet quam vitae maximus. Phasellus ullamcorper mauris et velit consequat, vitae elementum ipsum sollicitudin. Proin malesuada lorem ac purus feugiat, at molestie metus scelerisque. Nulla facilisi. Etiam nisl dolor, eleifend sed sollicitudin id, semper nec augue."
-                android:id="@+id/textView" />
+                android:paddingBottom="10dp"
+                android:paddingTop="10dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:text="@string/run_date_header"
+                    
+                    android:layout_weight="@integer/header_stats_weight"
+                    android:id="@+id/run_date_header" />
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="@integer/value_stats_weight"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:text="hello world"
+                    android:id="@+id/run_date_value"/>
+            </LinearLayout>
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingBottom="10dp"
+                android:paddingTop="10dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:text="@string/run_time_header"
+                    
+                    android:layout_weight="@integer/header_stats_weight"
+                    android:id="@+id/run_time_header" />
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="@integer/value_stats_weight"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:text="hello world"
+                    android:id="@+id/run_time_value"/>
+
+
+            </LinearLayout>
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingBottom="10dp"
+                android:paddingTop="10dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    
+                    android:text="@string/run_distance_header"
+                    android:layout_weight="@integer/header_stats_weight"
+                    android:id="@+id/run_distance_header" />
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="@integer/value_stats_weight"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:text="hello world"
+                    android:id="@+id/run_distance_value"/>
+
+
+            </LinearLayout>
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingBottom="10dp"
+                android:paddingTop="10dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:text="@string/run_avgSpeed_header"
+                    
+                    android:layout_weight="@integer/header_stats_weight"
+                    android:id="@+id/run_avgSpeed_header" />
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="@integer/value_stats_weight"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:text="hello world"
+                    android:id="@+id/run_avgSpeed_value"/>
+
+
+            </LinearLayout>
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingBottom="10dp"
+                android:paddingTop="10dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:text="@string/run_maxSpeed_header"
+                    
+                    android:layout_weight="@integer/header_stats_weight"
+                    android:id="@+id/run_maxSpeed_header" />
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="@integer/value_stats_weight"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:text="hello world"
+                    android:id="@+id/run_maxSpeed_value"/>
+
+
+            </LinearLayout>
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/show_on_maps"
+                android:id="@+id/show_on_maps"/>
 
         </LinearLayout>
+
     </ScrollView>
 
 

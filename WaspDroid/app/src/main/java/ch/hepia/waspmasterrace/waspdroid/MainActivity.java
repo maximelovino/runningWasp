@@ -25,8 +25,11 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         outState.putSerializable("RUN_LIST",this.runList);
+        System.out.println("SAVED LIST"+outState.getSerializable("RUN_LIST"));
+        System.out.println("saved data");
         super.onSaveInstanceState(outState);
     }
+
 
     /**
      * This method is called after {@link #onStart} when the activity is
@@ -50,8 +53,10 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
+        System.out.println("We're restoring the data");
         this.runList = (ArrayList<Run>) savedInstanceState.getSerializable("RUN_LIST");
     }
+
 
     //TODO implement onSaveInstanceState and onRestoreInstanceState to keep runData between runs, so we're protected from server shutdown https://developer.android.com/training/basics/activity-lifecycle/recreating.html
     @Override
@@ -59,14 +64,15 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
         if (this.runList == null){
             this.runList = new ArrayList<>();
         }
         //Dummy runs for when there is no network
 
-        runList.add(new Run(10, Calendar.getInstance(),2505));
-        runList.add(new Run(30, Calendar.getInstance(),2505));
-        runList.add(new Run(42, Calendar.getInstance(),2505));
+//        runList.add(new Run(10, Calendar.getInstance(),2505));
+//        runList.add(new Run(30, Calendar.getInstance(),2505));
+//        runList.add(new Run(42, Calendar.getInstance(),2505));
 
 
         runArrayAdapter = new ArrayAdapter<Run>(this,R.layout.list_run_item,R.id.list_run_item_text,runList);

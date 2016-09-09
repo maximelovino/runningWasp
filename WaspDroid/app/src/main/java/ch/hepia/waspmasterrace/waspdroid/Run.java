@@ -11,6 +11,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.Locale;
 
 /**
  * Created by maximelovino on 30/08/16.
@@ -23,9 +24,9 @@ public class Run implements Serializable{
     private int timeOfRun;
     private LinkedHashMap<Integer,GPScoordinates> runData;
     private final String BASE_URL_WEB = "sampang.internet-box.ch";
-    private double maxSpeed;
-    private double distance;
-    private double avgSpeed;
+    private Double maxSpeed;
+    private Double distance;
+    private Double avgSpeed;
     
 
     public Run(int runID, Calendar startDate, int timeOfRun){
@@ -57,6 +58,14 @@ public class Run implements Serializable{
 
     public Date getStartDate(){
         return this.startDate.getTime();
+    }
+
+    public String getDateAsString(){
+        int year = this.startDate.get(Calendar.YEAR);
+        String month = this.startDate.getDisplayName(Calendar.MONTH,Calendar.LONG,new Locale("us"));
+        int day = this.startDate.get(Calendar.DAY_OF_MONTH);
+
+        return day+" "+month+" "+year;
     }
 
     public LinkedHashMap<Integer,GPScoordinates> getRunData(){
@@ -119,4 +128,15 @@ public class Run implements Serializable{
         this.maxSpeed = maxDistance / 5.0;
     }
 
+    public Double getMaxSpeed() {
+        return maxSpeed;
+    }
+
+    public Double getDistance() {
+        return distance;
+    }
+
+    public Double getAvgSpeed() {
+        return avgSpeed;
+    }
 }

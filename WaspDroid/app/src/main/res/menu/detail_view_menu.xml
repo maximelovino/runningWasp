@@ -8,10 +8,4 @@
     app:showAsAction="always"
     android:icon="@drawable/ic_share"
     />
-
-    <item
-        android:id="@+id/show_on_maps"
-        android:title="Show on maps"
-        app:showAsAction="never"/>
-
 </menu>

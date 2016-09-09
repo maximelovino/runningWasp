@@ -5,13 +5,13 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -48,6 +48,21 @@ public class DetailView extends AppCompatActivity implements OnMapReadyCallback 
         actionBar.setSubtitle(run.toString());
 
         mapFragment.getMapAsync(this);
+
+        TextView dateTxt = (TextView) findViewById(R.id.run_date_value);
+        TextView timeTxt = (TextView) findViewById(R.id.run_time_value);
+        TextView distanceTxt = (TextView) findViewById(R.id.run_distance_value);
+        TextView avgSpeedTxt = (TextView) findViewById(R.id.run_avgSpeed_value);
+        TextView maxSpeedTxt = (TextView) findViewById(R.id.run_maxSpeed_value);
+
+
+        dateTxt.setText(run.getDateAsString());
+        timeTxt.setText(String.valueOf(run.getTimeOfRun()));
+        distanceTxt.setText(run.getDistance().toString());
+        avgSpeedTxt.setText(run.getAvgSpeed().toString());
+        maxSpeedTxt.setText(run.getMaxSpeed().toString());
+
+
 
         //TextView nameTxt = (TextView) findViewById(R.id.run_name);
         //TextView dateTxt = (TextView) findViewById(R.id.run_date_detail);

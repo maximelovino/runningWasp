@@ -90,7 +90,8 @@ public class PHPConnector extends AsyncTask<Void,Void,ArrayList<Run>> {
 
 
     private LinkedHashMap<Integer,GPScoordinates> getRunData(int runID) throws IOException {
-        //x;y;Count
+        //x;y;Count;TIME
+        //TODO integrate time in runs!!!!!
         LinkedHashMap<Integer,GPScoordinates> runData = new LinkedHashMap<>();
 
 

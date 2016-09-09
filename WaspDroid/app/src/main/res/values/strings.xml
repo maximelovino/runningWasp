@@ -53,4 +53,12 @@
 
     <string name="sync_error_message">We couldn\'t sync the data with the server</string>
     <string name="title_activity_maps">Map</string>
+    <string name="run_date_header">Date of run</string>
+    <string name="run_time_header">Time of run</string>
+    <string name="run_distance_header">Distance</string>
+    <string name="run_avgSpeed_header">Average Speed</string>
+    <string name="run_maxSpeed_header">Maximum Speed</string>
+    <string name="show_on_maps">Show on full screen maps</string>
+
+
 </resources>
