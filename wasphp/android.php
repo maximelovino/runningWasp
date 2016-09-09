@@ -5,7 +5,7 @@ try {
     die($e->getMessage());
 }
 $listrun = $db->prepare("SELECT idRun, Date, Seconds FROM t_run WHERE idUser LIKE :uid");
-$rundata = $db->prepare("SELECT `xcoord`, `ycoord`, `count` FROM `t_rundata` WHERE `idRun` LIKE :idr ORDER BY `count`");
+$rundata = $db->prepare("SELECT `xcoord`, `ycoord`, `count`, `time` FROM `t_rundata` WHERE `idRun` LIKE :idr ORDER BY `count`");
 
 if (!isset($_GET["uid"])) {
     header("location: index.php");
@@ -15,7 +15,7 @@ if (!isset($_GET["uid"])) {
         $r = $listrun->execute();
         $a = $listrun->fetchAll();
         foreach ($a as $line) {
-            //ID;Date
+            //ID;Date:Sec
             echo $line["idRun"].";".$line["Date"].";".$line["Seconds"]."\n";
         }
     } else if(isset($_GET["rundata"]) && isset($_GET["idRun"])) {
@@ -23,8 +23,8 @@ if (!isset($_GET["uid"])) {
         $rundata->execute();
         $a = $rundata->fetchAll();
         foreach ($a as $line) {
-            //X;Y;C
-            echo $line["xcoord"].";".$line["ycoord"].";".$line["count"]."\n";
+            //X;Y;C:T
+            echo $line["xcoord"].";".$line["ycoord"].";".$line["count"]."$".$line["time"]."\n";
         }
     }
 }
