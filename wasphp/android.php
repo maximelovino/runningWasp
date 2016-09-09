@@ -24,7 +24,7 @@ if (!isset($_GET["uid"])) {
         $a = $rundata->fetchAll();
         foreach ($a as $line) {
             //X;Y;C:T
-            echo $line["xcoord"].";".$line["ycoord"].";".$line["count"]."$".$line["time"]."\n";
+            echo $line["xcoord"].";".$line["ycoord"].";".$line["count"].";".$line["time"]."\n";
         }
     }
 }
