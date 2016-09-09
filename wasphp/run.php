@@ -10,12 +10,13 @@ try {
 $running = $db->query("SELECT running FROM t_user WHERE idUser LIKE ".$_GET["uid"])->fetchAll()[0][0];
 $setrunning = $db->prepare("UPDATE `t_user` SET `running`= :run WHERE `idUser` LIKE :uid");
 $newRun = $db->prepare("INSERT INTO `t_run`(`idUser`, `Date`) VALUES (:uid, :date)");
-$newPoint = $db->prepare("INSERT INTO `t_rundata`(`idRun`, `xcoord`, `ycoord`, `count`) VALUES (:idRun,:xcoord,:ycoord,:count)");
+$newPoint = $db->prepare("INSERT INTO `t_rundata`(`idRun`, `xcoord`, `ycoord`, `count`, `time`) VALUES (:idRun,:xcoord,:ycoord,:count,:time)");
 $updateTime = $db->prepare("UPDATE `t_run` SET `Seconds` = :sec WHERE `idRun` = :idr");
 
 $x = isset($_GET["x"]) ? $_GET["x"] : null;
 $y = isset($_GET["y"]) ? $_GET["y"] : null;
 $ts = isset($_GET["time"]) ? $_GET["time"] : null;
+$count = isset($_GET["cnt"]) ? $_GET["cnt"] : null;
 
 $start = isset($_GET["start"]) ? true : false;
 $end = isset($_GET["end"]) ? true : false;
@@ -52,14 +53,15 @@ if ($uid != null) {
         ));
     }
     //if a point addition is requested
-    if ($x != null && $y != null && $ts != null) {
+    if ($x != null && $y != null && $ts != null && $count != null) {
         if ($running != 0) {
             //add the new point to the db
             $newPoint->execute(array(
                 "idRun" => $running,
                 "xcoord" => $x,
                 "ycoord" => $y,
-                "count" => $ts
+                "count" => $count,
+                "time" => $ts
             ));
         }
     }

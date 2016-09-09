@@ -3,7 +3,7 @@
 #define BASE_URL "http://sampang.internet-box.ch:8080"
 #define GPS_TIMEOUT 200
 #define AT_GPRS_APN "internet"
-#define THRESHOLD 0.000001
+#define THRESHOLD 0.0001
 
 //temp varible to check errors
 int retr = 0;
