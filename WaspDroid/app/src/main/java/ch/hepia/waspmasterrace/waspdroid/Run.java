@@ -5,16 +5,19 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 
 /**
  * Created by maximelovino on 30/08/16.
+ */
+
+
+/**
+ * Class that designates a Run with all its data
+ * Implements Serializable so it can be passed in an Intent bundle
  */
 public class Run implements Serializable{
 
@@ -22,30 +25,38 @@ public class Run implements Serializable{
     private int userID;
     private Calendar startDate;
     private int timeOfRun;
-    private LinkedHashMap<Integer,GPScoordinates> runData;
+
+    private ArrayList<DataPoint> runData;
+
     private final String BASE_URL_WEB = "sampang.internet-box.ch";
     private Double maxSpeed;
     private Double distance;
     private Double avgSpeed;
-    
-
+    /**
+     * Default constructor for Run, uses userID 1
+     *
+     * @param runID The ID of the run
+     * @param startDate The date of the beginning of the run, as a Calendar instance
+     * @param timeOfRun The total time of the run, in seconds
+     */
     public Run(int runID, Calendar startDate, int timeOfRun){
         this(runID,1,startDate,timeOfRun);
     }
 
+    /**
+     * Complete constructor for Run
+     *
+     * @param runID The ID of the Run
+     * @param userID    The userID of the Run
+     * @param startDate The date of the beginning of the run, as a Calendar instance
+     * @param timeOfRun The total time of th run, in seconds
+     */
     public Run(int runID, int userID, Calendar startDate, int timeOfRun){
         this.runID = runID;
         this.userID = userID;
         this.startDate = startDate;
         this.timeOfRun = timeOfRun;
-        this.runData = new LinkedHashMap<>();
-
-
-    }
-
-
-    public void addPointOfRun(GPScoordinates coord, int seconds){
-        runData.put(seconds,coord);
+        this.runData = new ArrayList<>();
     }
 
     public int getRunID(){
@@ -68,52 +79,36 @@ public class Run implements Serializable{
         return day+" "+month+" "+year;
     }
 
-    public LinkedHashMap<Integer,GPScoordinates> getRunData(){
-        return new LinkedHashMap<>(this.runData);
-    }
-
     @Override
     public String toString(){
         return "Run "+runID;
     }
 
-    public void setRunData(LinkedHashMap<Integer,GPScoordinates> newData){
+    public void setRunData(ArrayList<DataPoint> newData){
         this.runData.clear();
-        this.runData.putAll(newData);
+        this.runData.addAll(newData);
+        Collections.sort(this.runData);
+    }
+
+    public ArrayList<DataPoint> getRunData() {
+        return runData;
     }
 
     public URL getURL() throws MalformedURLException {
         return new URL("http://"+BASE_URL_WEB+":8080/view.php?runid="+String.valueOf(runID));
     }
 
-    public ArrayList<GPScoordinates> getSortedListOfPoints(){
-        ArrayList<GPScoordinates> points = new ArrayList<>();
-        System.out.println("DATA for run "+runID+": "+this.runData);
-        ArrayList<Integer> keys = new ArrayList<>(this.runData.keySet());
-
-        Collections.sort(keys);
-        System.out.println("keys: "+keys);
-        for (int i=0;i<keys.size();i++){
-            points.add(this.runData.get(keys.get(i)));
-            System.out.println("point "+i+" "+this.runData.get(keys.get(i)));
-        }
-
-        return points;
-    }
     
     public void computeStats(){
         System.out.println("Computing stats");
         double dist = 0;
         double maxDistance = 0;
 
-        ArrayList<GPScoordinates> points = getSortedListOfPoints();
+        //TODO CHECK IF WE SHOULD USE TIME BETWEEN EACH POINT FOR STATS, for example speed
 
-
-        for (int i = 0;i<points.size()-1;i++){
-
-            GPScoordinates gps1 = points.get(i);
-            GPScoordinates gps2 = points.get(i+1);
-
+        for (int i = 0;i<this.runData.size()-1;i++){
+            GPScoordinates gps1 = this.runData.get(i).getPoint();
+            GPScoordinates gps2 = this.runData.get(i).getPoint();
             double tempDist = gps1.distanceTo(gps2);
 
             if (tempDist>maxDistance){
@@ -138,5 +133,9 @@ public class Run implements Serializable{
 
     public Double getAvgSpeed() {
         return avgSpeed;
+    }
+
+    public int getUserID() {
+        return userID;
     }
 }

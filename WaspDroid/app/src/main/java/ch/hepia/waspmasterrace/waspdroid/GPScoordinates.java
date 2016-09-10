@@ -38,18 +38,6 @@ public class GPScoordinates implements Serializable {
         return 2 * EARTH_RADIUS * Math.atan(Math.sqrt(alpha)/(Math.sqrt(1-alpha)));
     }
 
-    public static GPScoordinates getCenter(ArrayList<GPScoordinates> coordinates){
-        double sumX = 0;
-        double sumY = 0;
-
-        for (GPScoordinates data : coordinates){
-            sumX += data.getXCoord();
-            sumY += data.getYCoord();
-        }
-
-        return new GPScoordinates(sumX/(double)coordinates.size(),sumY/(double)coordinates.size());
-    }
-
     public LatLng getForMaps(){
         return new LatLng(this.yCoord,this.xCoord);
     }

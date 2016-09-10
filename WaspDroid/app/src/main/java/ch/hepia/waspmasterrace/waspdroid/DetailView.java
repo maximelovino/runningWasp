@@ -41,8 +41,6 @@ public class DetailView extends AppCompatActivity implements OnMapReadyCallback 
 
         MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map_detail_view);
 
-
-
         ActionBar actionBar = getSupportActionBar();
 
         actionBar.setSubtitle(run.toString());
@@ -61,14 +59,6 @@ public class DetailView extends AppCompatActivity implements OnMapReadyCallback 
         distanceTxt.setText(run.getDistance().toString());
         avgSpeedTxt.setText(run.getAvgSpeed().toString());
         maxSpeedTxt.setText(run.getMaxSpeed().toString());
-
-
-
-        //TextView nameTxt = (TextView) findViewById(R.id.run_name);
-        //TextView dateTxt = (TextView) findViewById(R.id.run_date_detail);
-
-        //nameTxt.setText(run.toString());
-        //dateTxt.setText(run.getStartDate().toString());
 
     }
 
@@ -165,7 +155,7 @@ public class DetailView extends AppCompatActivity implements OnMapReadyCallback 
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-        ArrayList<GPScoordinates> points = run.getSortedListOfPoints();
+        ArrayList<DataPoint> points = run.getRunData();
         //mMap.setMyLocationEnabled(true);
         if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
@@ -180,13 +170,10 @@ public class DetailView extends AppCompatActivity implements OnMapReadyCallback 
         if (!points.isEmpty()) {
             LatLngBounds.Builder builder = new LatLngBounds.Builder();
 
-
-            LatLng centerMaps = GPScoordinates.getCenter(points).getForMaps();
-
             PolylineOptions poly = new PolylineOptions();
 
-            for (GPScoordinates point : points) {
-                LatLng mapPoint = point.getForMaps();
+            for (DataPoint point : points) {
+                LatLng mapPoint = point.getPoint().getForMaps();
                 poly.add(mapPoint);
                 builder.include(mapPoint);
             }
@@ -194,7 +181,7 @@ public class DetailView extends AppCompatActivity implements OnMapReadyCallback 
             mMap.addPolyline(poly);
 
             // We add a marker to denote the start of the run
-            mMap.addMarker(new MarkerOptions().position(points.get(0).getForMaps()).title("Start point"));
+            mMap.addMarker(new MarkerOptions().position(points.get(0).getPoint().getForMaps()).title("Start point"));
 
             // We wait for the map to load before settings the bound, otherwise it results in a crash
             mMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
@@ -202,7 +189,6 @@ public class DetailView extends AppCompatActivity implements OnMapReadyCallback 
                 public void onMapLoaded() {
                     CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds,100);
                     mMap.animateCamera(cu);
-
                 }
             });
 

@@ -22,6 +22,8 @@ import java.util.ArrayList;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
+    //TODO REDO ALL OF THIS IF WE WANT A FULL SCREEN MAP
+
     private Run run;
     private GoogleMap mMap;
     private final int REQUEST_LOCATION_CODE = 42;

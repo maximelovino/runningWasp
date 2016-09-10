@@ -7,6 +7,7 @@ import android.widget.Toast;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.reflect.Array;
 import java.net.URL;
 import java.net.URLConnection;
 import java.text.DateFormat;
@@ -26,10 +27,6 @@ public class PHPConnector extends AsyncTask<Void,Void,ArrayList<Run>> {
     private String serverPath;
     private ArrayAdapter<Run> runAdapter;
     private MainActivity activity;
-
-    public PHPConnector(String baseURL, ArrayAdapter<Run> runAdapter, MainActivity activity){
-        this(baseURL,8080,runAdapter, activity);
-    }
 
     public PHPConnector(String baseURL,int portNumber, ArrayAdapter<Run> runAdapter, MainActivity activity){
         this.baseURL = baseURL;
@@ -89,10 +86,12 @@ public class PHPConnector extends AsyncTask<Void,Void,ArrayList<Run>> {
 
 
 
-    private LinkedHashMap<Integer,GPScoordinates> getRunData(int runID) throws IOException {
-        //x;y;Count;TIME
+    private ArrayList<DataPoint> getRunData(int runID) throws IOException {
+        //TODO x;y;Count;TIME
         //TODO integrate time in runs!!!!!
-        LinkedHashMap<Integer,GPScoordinates> runData = new LinkedHashMap<>();
+        //TODO use new classes
+
+        ArrayList<DataPoint> runData = new ArrayList<>();
 
 
         URL url = new URL("http://"+this.serverPath+"/android.php?uid=1&rundata&idRun="+runID);
@@ -114,10 +113,11 @@ public class PHPConnector extends AsyncTask<Void,Void,ArrayList<Run>> {
 
             GPScoordinates gps = new GPScoordinates(x,y);
 
-            //int time = (Integer.valueOf(lineArray[2])-1)*5;
             int count = Integer.valueOf(lineArray[2]);
+            int time = Integer.valueOf(lineArray[3]);
 
-            runData.put(count,gps);
+            DataPoint point = new DataPoint(gps,count,time);
+            runData.add(point);
         }
         inStream.close();
 
