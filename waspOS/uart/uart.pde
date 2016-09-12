@@ -4,7 +4,6 @@
 //Basic UART communication example
 void setup()
 {
-  char carriageReturn = 13;
   // Configures internal multiplexer
   Utils.setMuxAux1();
   // Configures baudrate
@@ -33,14 +32,13 @@ void loop()
 {
   printString("/start;1", 1);
   delay(10);
-  printString("/run;12;4;1;1", 1);
+  printString("/run;12;4;1;32;1", 1);
   delay(10);
-  printString("/run;12;3;2;1", 1);
+  printString("/run;12;3;2;37;1", 1);
   delay(10);
-  printString("/run;12;2;3;1", 1);
+  printString("/run;12;2;3;42;1", 1);
   delay(10);
   printString("/end;1;63", 1);
-  
   
   delay(10000);
   printString("$$$", 1);
