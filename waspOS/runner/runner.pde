@@ -37,12 +37,18 @@ int cnt = 0;
 
 int k = 0;
 
+int val;
 
 
 /* Setup function
  * Initialize all modules check for errors
  */
 void setup() {
+
+  pinMode(DIGITAL3, INPUT);
+  PWR.setSensorPower(SENS_3V3, SENS_ON);
+  val = digitalRead(DIGITAL3);
+
   USB.ON();
   USB.println(F("USB port started"));
 
@@ -82,12 +88,6 @@ void setup() {
           if(status)
           {
             USB.println(F("GPS signal aquired"));
-            USB.println(F("Starting a run..."));
-            strcpy(tmpString, BASE_URL);
-            strcat(tmpString, "/run.php?uid=1&start");
-            USB.print(F("Contacting "));
-            USB.println(tmpString);
-            GPRS_SIM928A.readURL(tmpString, 1);
             alive = true;
           }
           else 
@@ -115,6 +115,17 @@ void setup() {
   {
     USB.println(F("GPRS+GPS module activation failed"));
   }
+  USB.println(F("Waiting for button press"));
+  do {
+    //Wait
+  } while((val == digitalRead(DIGITAL3)) || !alive);
+  val = digitalRead(DIGITAL3);
+  USB.println(F("Starting a run..."));
+  strcpy(tmpString, BASE_URL);
+  strcat(tmpString, "/run.php?uid=1&start");
+  USB.print(F("Contacting "));
+  USB.println(tmpString);
+  GPRS_SIM928A.readURL(tmpString, 1);
 }
 
 
@@ -213,13 +224,12 @@ void updateGPS() {
 
     //counter increments, even if the gps fails, to keep data integrity
     pc++;
-    //purely fake condition to determine if the run should end while we dont have a button
-    if(pc > 20) 
-    {
+    if(val != digitalRead(DIGITAL3)) {
       endrun = true;
     }
   } 
 }
+
 
 
 
