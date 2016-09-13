@@ -1,4 +1,6 @@
 #include <WaspGPRS_SIM928A.h>
+#include <WaspUART.h>
+#include <WaspUSB.h>
 
 #define BASE_URL "http://sampang.internet-box.ch:8080"
 #define GPS_TIMEOUT 200
@@ -18,10 +20,14 @@ bool alive = false;
 bool endrun = false;
 //Connected to GPRS network
 bool gprs = false;
+//Connected to an IP network through WiFly
+bool network = false;
+//if a run ended with a file created on the SD card
+bool datafileAvailable = false;
 //Concat string
 char tmpString[80];
 //String representation of the x value (longitude)
-//16 because angles can be SXXX.XXXXXXXXXX = 15 char + the nul
+//16 because angles can be SXXX.XXXXXXXXXX = 15 char + the null
 char x[16];
 //String representation of the y value (latitude)
 char y[16];
@@ -55,10 +61,18 @@ void setup() {
   SD.ON();
   USB.ON();
   USB.println(F("Setup started"));
+  
+  // Configures multiplexer for WiFly
+  Utils.setMuxAux1();
+  // Configures baudrate for WiFly
+  beginSerial(115200, 1);
+  //clear buffers, ready to use.
+  serialFlush(1); 
+  USB.println(F("WiFly module ready"));
 
   //Activates the GPRS+GPS module: (1 and -3 are success code)
   retr = GPRS_SIM928A.ON();
-  if ((retr == 1) || (retr == -3))
+  if (retr == 1 || retr == -3)
   {
     USB.println(F("GPRS+GPS module ready"));
 
@@ -122,10 +136,15 @@ void setup() {
     USB.println(F("GPRS+GPS module activation failed"));
   }
   USB.println(F("Waiting for button press"));
-  do {
-    //Wait
-  }
-  while((val == digitalRead(DIGITAL3)) || !alive);
+  do 
+  {
+    retr = SD.isFile(DATA_FILE);
+    if(retr == 1)
+    {
+      sendRunOverWifi();
+    }
+  } while((val == digitalRead(DIGITAL3)) || !alive);
+  
   val = digitalRead(DIGITAL3);
   startTime = millis();
 }
@@ -134,13 +153,16 @@ void setup() {
 /* Loop function
  * Send data to the server
  */
-void loop() {
-  if(alive) {
+void loop() 
+{
+  if(alive) 
+  {
     updateGPS();
     sendGPSData();
 
     pc++;
-    if(val != digitalRead(DIGITAL3)) {
+    if(val != digitalRead(DIGITAL3)) 
+    {
       endrun = true;
     }
   }
@@ -149,10 +171,17 @@ void loop() {
   {
     endRun();
   }
+  
+  if(datafileAvailable)
+  {
+    sendRunOverWifi();
+  }
 }
 
-void startRun() {
-  if(gprs) {
+void startRun() 
+{
+  if(gprs) 
+  {
     USB.println(F("Starting a run..."));
     strcpy(tmpString, BASE_URL);
     strcat(tmpString, "/run.php?uid=1&start");
@@ -160,37 +189,45 @@ void startRun() {
     USB.println(tmpString);
     GPRS_SIM928A.readURL(tmpString, 1);
   } 
-  else {
+  else 
+  {
     writeStartToSD();
   }
 }
 
-void endRun() {
+void endRun() 
+{
   sprintf(time, "%i", (millis()-startTime) / 1000);
-  if(gprs) {
+  if(gprs) 
+  {
     strcpy(tmpString, BASE_URL);
     strcat(tmpString, "/run.php?uid=1&time=");
     strcat(tmpString, time);
     strcat(tmpString, "&end");
     GPRS_SIM928A.readURL(tmpString, 1);
   } 
-  else {
+  else 
+  {
     strcpy(tmpString, "/end;");
     strcat(tmpString, "1;");
     strcat(tmpString, time);
     SD.appendln(DATA_FILE, tmpString);
+    
+    datafileAvailable = true;
   }
   alive = false;
   USB.println(F("Run stopped !"));
 }
 
-void updateGPS() {
+void updateGPS() 
+{
   i = 0;
   k = 0;
   cnt = 0;
   a[0] = 0;
   a[1] = 0;
-  while(i < 5) {
+  while(i < 5) 
+  {
     retr = GPRS_SIM928A.getGPSData(1);
     if(retr)
     {
@@ -208,11 +245,14 @@ void updateGPS() {
   USB.print(F(", "));
   USB.println(a[1]);
 
-  for(k = 0; k < i;k++) {
-    if(sqrt((P[k][0] - a[0])*(P[k][0] - a[0])+(P[k][1] - a[1])*(P[k][1] - a[1])) > THRESHOLD) {
+  for(k = 0; k < i;k++) 
+  {
+    if(sqrt((P[k][0] - a[0])*(P[k][0] - a[0])+(P[k][1] - a[1])*(P[k][1] - a[1])) > THRESHOLD) 
+    {
       P[k][0] = -200;
     }
-    else {
+    else 
+    {
       cnt++;
     }
   }
@@ -220,8 +260,10 @@ void updateGPS() {
   a[0] = 0;
   a[1] = 0;
 
-  for(k = 0; k < i; k++) {
-    if(P[k][0] != -200) {
+  for(k = 0; k < i; k++) 
+  {
+    if(P[k][0] != -200) 
+    {
       a[0] += P[k][0];
       a[1] += P[k][1];
     }
@@ -235,7 +277,8 @@ void updateGPS() {
   USB.print(F(", "));
   USB.println(a[1]);
 
-  if(cnt > 0) {
+  if(cnt > 0) 
+  {
     Utils.float2String(a[0], x, 10);
     Utils.float2String(a[1], y, 10);
     sprintf(pcs, "%i", pc);
@@ -243,8 +286,10 @@ void updateGPS() {
   }
 }
 
-void sendGPSData() {
-  if(gprs) {
+void sendGPSData() 
+{
+  if(gprs) 
+  {
     //build url
     Utils.setLED(LED0, LED_ON);
     strcpy(tmpString, BASE_URL);
@@ -261,17 +306,20 @@ void sendGPSData() {
     GPRS_SIM928A.readURL(tmpString, 1);
     Utils.setLED(LED0, LED_OFF);
   }
-  else {
+  else 
+  {
     writeGPSToSD();
   }
 }
 
-void writeStartToSD() {
+void writeStartToSD() 
+{
   SD.create(DATA_FILE);
   SD.appendln(DATA_FILE, "/start;1");
 }
 
-void writeGPSToSD() {
+void writeGPSToSD() 
+{
   strcpy(tmpString, "/run;");
   strcat(tmpString, x);
   strcat(tmpString, ";");
@@ -282,6 +330,103 @@ void writeGPSToSD() {
   strcat(tmpString, time);
   strcat(tmpString, ";1");
   SD.appendln(DATA_FILE, tmpString);
+}
+
+void sendRunOverWifi()
+{
+  USB.println(F("Trying to send run over Wifi"));
+  USB.println(F("Connecting"));
+  //serialFlush(1);
+  delay(10);
+  
+  while(!network)
+  {
+    printString("$$$", 1);
+    delay(400);
+    printNewline(1);
+    
+    while(serialAvailable(1))
+    {
+      USB.print((char)serialRead(1));
+    }
+    USB.println();
+    
+    printString("open\r\n", 1);
+    char* response = (char*) malloc(200 * sizeof(char));
+    int i = 0;
+    delay(2000);
+    while(serialAvailable(1))
+    {
+      char next = (char)serialRead(1);
+      response[i] = next;
+      i++;
+      USB.print(next);
+    }
+    USB.println();
+    
+    if(response[i - 1] == '*')
+    {
+      network = true;
+      USB.println(F("NETWORK ACQUIRED"));
+    }
+      
+    free(response);
+    
+    if(!network)
+    {
+      printString("exit\r\n", 1);
+      delay(100);
+      while(serialAvailable(1))
+      {
+        USB.print((char)serialRead(1));
+      }
+      USB.println();
+    }
+    delay(5000);
+  }
+  
+  retr = SD.numln(DATA_FILE);
+  for(int i = 0 ; i < retr ; i++)
+  {
+    SD.catln(DATA_FILE, i, 1);
+    
+    printString(SD.buffer, 1);
+    delay(10);
+  }
+  
+  delay(1000);
+  printString("$$$", 1);
+  delay(400);
+  while(serialAvailable(1))
+  {
+    USB.print((char)serialRead(1));
+  }
+  USB.println();
+  printString("close\r\n", 1);
+  delay(200);
+  while(serialAvailable(1))
+  {
+    USB.print((char)serialRead(1));
+  }
+  USB.println();
+  printString("exit\r\n", 1);
+  delay(200);
+  while(serialAvailable(1))
+  {
+    USB.print((char)serialRead(1));
+  }
+  USB.println();
+  USB.println(F("SLEEP MODE"));
+  delay(50000000);  
+  retr = SD.del(DATA_FILE);
+  if(retr == 1)
+  {
+    USB.println(F("FILE DELETED"));
+  }
+  else
+  {
+    USB.println(F("FILE NOT DELETED FOR SOME REASON, THANKS OBAMA"));
+  }
 }
 
 
