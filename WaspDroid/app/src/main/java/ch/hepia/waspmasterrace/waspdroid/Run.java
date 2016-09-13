@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
-import java.util.LinkedHashMap;
 import java.util.Locale;
 
 /**
@@ -81,7 +80,7 @@ public class Run implements Serializable{
 
     @Override
     public String toString(){
-        return "Run "+runID;
+        return "Run "+runID+" on "+this.getDateAsString();
     }
 
     public void setRunData(ArrayList<DataPoint> newData){
@@ -102,25 +101,31 @@ public class Run implements Serializable{
     public void computeStats(){
         System.out.println("Computing stats");
         double dist = 0;
-        double maxDistance = 0;
-
-        //TODO CHECK IF WE SHOULD USE TIME BETWEEN EACH POINT FOR STATS, for example speed
-
+        double highSpeed = 0;
+        
         for (int i = 0;i<this.runData.size()-1;i++){
             GPScoordinates gps1 = this.runData.get(i).getPoint();
-            GPScoordinates gps2 = this.runData.get(i).getPoint();
+            GPScoordinates gps2 = this.runData.get(i+1).getPoint();
+
+            int time1 = this.runData.get(i).getTime();
+            int time2 = this.runData.get(i+1).getTime();
+
+            System.out.println(gps1);
             double tempDist = gps1.distanceTo(gps2);
 
-            if (tempDist>maxDistance){
-                maxDistance = tempDist;
-            }
+            double tempSpeed = tempDist / (double) (time2-time1);
+
+            if (tempSpeed>highSpeed)
+                highSpeed = tempSpeed;
 
             dist += tempDist;
+            System.out.println("Distance "+tempDist);
         }
 
         this.distance = dist;
         this.avgSpeed = dist / this.timeOfRun;
-        this.maxSpeed = maxDistance / 5.0;
+        this.maxSpeed = highSpeed;
+
     }
 
     public Double getMaxSpeed() {
@@ -137,5 +142,21 @@ public class Run implements Serializable{
 
     public int getUserID() {
         return userID;
+    }
+
+    private static Double getSpeedInKmh(Double speed){
+        return speed / 3.6;
+    }
+
+    public Double getAvgSpeedAsKmh(){
+        return getSpeedInKmh(this.avgSpeed);
+    }
+
+    public Double getMaxSpeedAsKmh(){
+        return getSpeedInKmh(this.maxSpeed);
+    }
+
+    public Double getDistanceInKm(){
+        return this.distance / 1000;
     }
 }

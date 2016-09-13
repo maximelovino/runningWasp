@@ -52,7 +52,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-        ArrayList<GPScoordinates> points = run.getSortedListOfPoints();
+        ArrayList<DataPoint> points = run.getRunData();
         //mMap.setMyLocationEnabled(true);
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
@@ -68,18 +68,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             LatLngBounds.Builder builder = new LatLngBounds.Builder();
 
 
-            LatLng centerMaps = GPScoordinates.getCenter(points).getForMaps();
 
             PolylineOptions poly = new PolylineOptions();
 
-            for (GPScoordinates point : points) {
-                LatLng mapPoint = point.getForMaps();
+            for (DataPoint point : points) {
+                LatLng mapPoint = point.getPoint().getForMaps();
                 poly.add(mapPoint);
                 builder.include(mapPoint);
             }
             LatLngBounds bounds = builder.build();
             mMap.addPolyline(poly);
-            mMap.moveCamera(CameraUpdateFactory.newLatLng(centerMaps));
             mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, 100));
         }
     }

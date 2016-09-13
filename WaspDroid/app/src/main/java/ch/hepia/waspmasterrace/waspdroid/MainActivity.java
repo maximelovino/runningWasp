@@ -8,26 +8,35 @@ import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 
+/**
+ * Entry point of our program, displays the list of runs
+ */
 public class MainActivity extends AppCompatActivity {
 
     private ArrayAdapter<Run> runArrayAdapter;
     private ArrayList<Run> runList;
     public SwipeRefreshLayout swipe2Refresh;
+    private static final String TAG = MainActivity.class.getName();
 
+
+    /**
+     * Saves state of variables when activity is stopped
+     *
+     * @param outState  The bundle, where we put the data
+     */
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         outState.putSerializable("RUN_LIST",this.runList);
-        System.out.println("SAVED LIST"+outState.getSerializable("RUN_LIST"));
-        System.out.println("saved data");
         super.onSaveInstanceState(outState);
+        Log.v(TAG,"Data saved");
     }
 
 
@@ -53,31 +62,22 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
-        System.out.println("We're restoring the data");
         this.runList = (ArrayList<Run>) savedInstanceState.getSerializable("RUN_LIST");
+        Log.v(TAG,"Data restored");
     }
 
-
-    //TODO implement onSaveInstanceState and onRestoreInstanceState to keep runData between runs, so we're protected from server shutdown https://developer.android.com/training/basics/activity-lifecycle/recreating.html
+    //TODO check if we should implement a recycler view
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
-        if (this.runList == null){
+        //If the runList is not restored, we have to initialize it
+        if (this.runList == null) {
             this.runList = new ArrayList<>();
+            Log.w(TAG,"Run list had to be initialized");
         }
-        //Dummy runs for when there is no network
-
-//        runList.add(new Run(10, Calendar.getInstance(),2505));
-//        runList.add(new Run(30, Calendar.getInstance(),2505));
-//        runList.add(new Run(42, Calendar.getInstance(),2505));
-
-
-        runArrayAdapter = new ArrayAdapter<Run>(this,R.layout.list_run_item,R.id.list_run_item_text,runList);
-
-        ListView lView = (ListView) findViewById(R.id.listView);
+        //FAB code and listener for the settings button
         final FloatingActionButton settingsFab = (FloatingActionButton) findViewById(R.id.fab_main);
 
         settingsFab.setOnClickListener(new View.OnClickListener() {
@@ -88,6 +88,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        //Swipe to refresh listener to update data
         swipe2Refresh = (SwipeRefreshLayout) findViewById(R.id.refresh_view);
         swipe2Refresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -96,16 +97,17 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        //Setting the adapter and list view to display the runs
+        runArrayAdapter = new ArrayAdapter<>(this,R.layout.list_run_item,R.id.list_run_item_text,runList);
+        ListView lView = (ListView) findViewById(R.id.listView);
         lView.setAdapter(runArrayAdapter);
         lView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Run runToPass=runArrayAdapter.getItem(position);
-                System.out.println(runToPass);
+                //We pass the run object in the intent, so it's available to the detail activity
                 Intent intent = new Intent(runArrayAdapter.getContext(),DetailView.class);
-                System.out.println("intent created");
                 intent.putExtra("RUN",runToPass);
-                System.out.println("runAdded");
                 startActivity(intent);
             }
         });
@@ -118,13 +120,16 @@ public class MainActivity extends AppCompatActivity {
         updateData();
     }
 
+    /**
+     * Method to update the data from the server, launches update via AsyncTask
+     */
     private void updateData(){
+        //We get the server address and port from preferences
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-
         String baseUrl = prefs.getString(getString(R.string.pref_key_url),getString(R.string.pref_default_url));
         int portNumber = Integer.valueOf(prefs.getString(getString(R.string.pref_key_port),getString(R.string.pref_default_port)));
+        //We create an asyncTask to take care of the network task
         AsyncTask task = new PHPConnector(baseUrl,portNumber,runArrayAdapter,this).execute();
-
     }
 
 }

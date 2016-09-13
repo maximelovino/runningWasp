@@ -87,9 +87,6 @@ public class PHPConnector extends AsyncTask<Void,Void,ArrayList<Run>> {
 
 
     private ArrayList<DataPoint> getRunData(int runID) throws IOException {
-        //TODO x;y;Count;TIME
-        //TODO integrate time in runs!!!!!
-        //TODO use new classes
 
         ArrayList<DataPoint> runData = new ArrayList<>();
 

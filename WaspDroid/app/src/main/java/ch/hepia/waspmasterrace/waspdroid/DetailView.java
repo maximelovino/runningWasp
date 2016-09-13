@@ -23,7 +23,9 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 
+import java.math.RoundingMode;
 import java.net.MalformedURLException;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 
 public class DetailView extends AppCompatActivity implements OnMapReadyCallback {
@@ -55,10 +57,12 @@ public class DetailView extends AppCompatActivity implements OnMapReadyCallback 
 
 
         dateTxt.setText(run.getDateAsString());
-        timeTxt.setText(String.valueOf(run.getTimeOfRun()));
-        distanceTxt.setText(run.getDistance().toString());
-        avgSpeedTxt.setText(run.getAvgSpeed().toString());
-        maxSpeedTxt.setText(run.getMaxSpeed().toString());
+        timeTxt.setText(String.valueOf(run.getTimeOfRun())+" s");
+
+        DecimalFormat df = new DecimalFormat("#.###");
+        distanceTxt.setText(df.format(run.getDistanceInKm())+" km");
+        avgSpeedTxt.setText(df.format(run.getAvgSpeedAsKmh())+" km/h");
+        maxSpeedTxt.setText(df.format(run.getMaxSpeedAsKmh())+" km/h");
 
     }
 

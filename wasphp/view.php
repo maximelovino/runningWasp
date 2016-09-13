@@ -23,6 +23,7 @@ if (!isset($_GET["runid"])) {
         <script src="http://maps.googleapis.com/maps/api/js"></script>
         <script>
             var pathArray = [];
+			var bounds = new google.maps.LatLngBounds();
             <?php
             $xsum = 0.0;
             $ysum = 0.0;
@@ -32,6 +33,7 @@ if (!isset($_GET["runid"])) {
                 $ysum += $p["ycoord"];
                 $count++;
                 echo 'pathArray.push(new google.maps.LatLng(' . $p["ycoord"] . ',' . $p["xcoord"] . '));' . "\n";
+				echo 'bounds.extend(new google.maps.LatLng('.$p["ycoord"].','.$p["xcoord"].'));'."\n";
             }
             $centerx = $xsum / $count;
             $centery = $ysum / $count;
@@ -46,6 +48,7 @@ if (!isset($_GET["runid"])) {
                     mapTypeId: google.maps.MapTypeId.ROADMAP
                 };
                 var map = new google.maps.Map(document.getElementById("googleMap"), mapProp);
+				map.fitBounds(bounds);
 
                 var flightPath = new google.maps.Polyline({
                     path: pathArray,

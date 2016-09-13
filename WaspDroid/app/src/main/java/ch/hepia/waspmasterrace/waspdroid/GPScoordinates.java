@@ -8,36 +8,68 @@ import java.util.ArrayList;
 /**
  * Created by maximelovino on 30/08/16.
  */
+
+/**
+ * Class to define GPS coordinates, and geo methods
+ */
 public class GPScoordinates implements Serializable {
     private double xCoord;
     private double yCoord;
     private final static int EARTH_RADIUS = 6371000;
 
+    /**
+     * Constructor for the class
+     *
+     * @param xCoord    The longitude of the point
+     * @param yCoord    The latitude of the point
+     */
     public GPScoordinates(double xCoord, double yCoord){
         this.xCoord=xCoord;
         this.yCoord=yCoord;
     }
 
+    /**
+     *
+     * @return  The longitude of the point
+     */
     public double getXCoord(){
         return this.xCoord;
     }
 
+    /**
+     *
+     * @return  The latitude of the point
+     */
     public double getYCoord(){
         return this.yCoord;
     }
 
+    /**
+     * Implementation of the haversine formula to calculate the distance
+     *
+     * @param secondCoordinate  A GPS coordinate
+     * @return  The distance (in meters) between this instance and the second coordinate
+     */
     public double distanceTo(GPScoordinates secondCoordinate){
         double lambda1 =  this.xCoord;
         double phi1 = this.yCoord;
 
         double lambda2 = secondCoordinate.getXCoord();
         double phi2 = secondCoordinate.getYCoord();
+        System.out.println(lambda1+";"+phi1+";"+lambda2+";"+phi2);
 
         double alpha = Math.pow(Math.sin((phi1-phi2)/2.0),2) + Math.cos(phi1)*Math.cos(phi2)*Math.pow(Math.sin((lambda1-lambda2)/2.0),2);
+        System.out.println(alpha);
 
-        return 2 * EARTH_RADIUS * Math.atan(Math.sqrt(alpha)/(Math.sqrt(1-alpha)));
+        double result = 2 * EARTH_RADIUS * Math.atan(Math.sqrt(alpha)/(Math.sqrt(1-alpha)));
+        System.out.println(result);
+        return result;
     }
 
+    /**
+     *
+     * @return  The GPS coordinates as a LatLng object for the Maps API
+     */
     public LatLng getForMaps(){
         return new LatLng(this.yCoord,this.xCoord);
     }

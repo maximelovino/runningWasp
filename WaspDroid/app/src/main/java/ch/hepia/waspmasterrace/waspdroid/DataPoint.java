@@ -6,25 +6,50 @@ import java.util.Comparator;
 /**
  * Created by maximelovino on 09/09/16.
  */
+
+/**
+ * Class to implement a DataPoint for the run, Serializable to be passed in an intent
+ *
+ * A DataPoint consists of a coordinate, sequence number and time
+ */
 public class DataPoint implements Serializable,Comparator,Comparable {
     private GPScoordinates point;
     private int id;
     private int time;
 
+    /**
+     * Constructor for the DataPoint
+     *
+     * @param point The GPS coordinates of the point
+     * @param id    The sequence number of the point
+     * @param time  The time at which the point was taken (in seconds from the beginning of the run)
+     */
     public DataPoint(GPScoordinates point, int id, int time) {
         this.point = point;
         this.id = id;
         this.time = time;
     }
 
+    /**
+     *
+     * @return  The GPS coordinates of the point
+     */
     public GPScoordinates getPoint() {
         return point;
     }
 
+    /**
+     *
+     * @return  The sequence number of the point
+     */
     public int getId() {
         return id;
     }
 
+    /**
+     *
+     * @return  The time at which the point was taken (in seconds from the beginning of the run)
+     */
     public int getTime() {
         return time;
     }
@@ -127,5 +152,32 @@ public class DataPoint implements Serializable,Comparator,Comparable {
         }else{
             return 0;
         }
+    }
+
+    /**
+     * Returns a string representation of the object. In general, the
+     * {@code toString} method returns a string that
+     * "textually represents" this object. The result should
+     * be a concise but informative representation that is easy for a
+     * person to read.
+     * It is recommended that all subclasses override this method.
+     * <p/>
+     * The {@code toString} method for class {@code Object}
+     * returns a string consisting of the name of the class of which the
+     * object is an instance, the at-sign character `{@code @}', and
+     * the unsigned hexadecimal representation of the hash code of the
+     * object. In other words, this method returns a string equal to the
+     * value of:
+     * <blockquote>
+     * <pre>
+     * getClass().getName() + '@' + Integer.toHexString(hashCode())
+     * </pre></blockquote>
+     *
+     * @return a string representation of the object.
+     */
+    @Override
+    public String toString() {
+        return "---------------\n Point: "+this.getPoint()+"\nCount: "+this.getId()+"\nTime: "+this.getTime()+"\n-------------\n";
+
     }
 }
