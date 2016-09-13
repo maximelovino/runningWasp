@@ -2,6 +2,9 @@
 #include <WaspUSB.h>
 #include <WaspUART.h>
 //Basic UART communication example
+
+bool network = false;
+
 void setup()
 {
   // Configures internal multiplexer
@@ -9,23 +12,51 @@ void setup()
   // Configures baudrate
   beginSerial(115200, 1);
   serialFlush(1);  //clear buffers
-
-  printString("$$$", 1);
-  delay(400);
-  printNewline(1);
-  while(serialAvailable(1))
-  {
-    USB.println((char)serialRead(1));
-  }
-  delay(1000);
-  printString("open\r\n", 1);
-  delay(2000);
-  while(serialAvailable(1))
-  {
-    USB.println((char)serialRead(1));
-  }
   
-  delay(5000);
+  while(!network)
+  {
+    delay(5000);
+    printString("$$$", 1);
+    delay(400);
+    printNewline(1);
+    
+    while(serialAvailable(1))
+    {
+      USB.print((char)serialRead(1));
+    }
+    USB.println();
+    
+    printString("open\r\n", 1);
+    char* response = (char*) malloc(200 * sizeof(char));
+    int i = 0;
+    delay(2000);
+    while(serialAvailable(1))
+    {
+      char next = (char)serialRead(1);
+      response[i] = next;
+      i++;
+      USB.print(next);
+    }
+    USB.println();
+    
+    if(response[i - 1] == '*')
+      network = true;
+      
+    free(response);
+    
+    if(!network)
+    {
+      printString("exit\r\n", 1);
+      delay(100);
+      while(serialAvailable(1))
+      {
+        USB.print((char)serialRead(1));
+      }
+      USB.println();
+    }
+    
+    USB.println(network);
+  }
 }
 
 void loop()
@@ -45,20 +76,23 @@ void loop()
   delay(400);
   while(serialAvailable(1))
   {
-    USB.println((char)serialRead(1));
+    USB.print((char)serialRead(1));
   }
+  USB.println();
   printString("close\r\n", 1);
   delay(200);
   while(serialAvailable(1))
   {
-    USB.println((char)serialRead(1));
+    USB.print((char)serialRead(1));
   }
+  USB.println();
   printString("exit\r\n", 1);
   delay(200);
   while(serialAvailable(1))
   {
-    USB.println((char)serialRead(1));
+    USB.print((char)serialRead(1));
   }
+  USB.println();
   
   USB.println("SLEEP MODE");
   delay(5000000);
