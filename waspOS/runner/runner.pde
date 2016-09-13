@@ -4,6 +4,7 @@
 #define GPS_TIMEOUT 200
 #define AT_GPRS_APN "internet"
 #define THRESHOLD 0.0001
+#define DATA_FILE "DATA.TXT"
 
 //temp varible to check errors
 int retr = 0;
@@ -15,6 +16,8 @@ char simCode[5] = "3891";
 bool alive = false;
 //if the run should be ended
 bool endrun = false;
+//Connected to GPRS network
+bool gprs = false;
 //Concat string
 char tmpString[80];
 //String representation of the x value (longitude)
@@ -39,18 +42,19 @@ int k = 0;
 
 int val;
 
+int startTime = 0;
 
 /* Setup function
  * Initialize all modules check for errors
  */
 void setup() {
-
   pinMode(DIGITAL3, INPUT);
   PWR.setSensorPower(SENS_3V3, SENS_ON);
   val = digitalRead(DIGITAL3);
 
+  SD.ON();
   USB.ON();
-  USB.println(F("USB port started"));
+  USB.println(F("Setup started"));
 
   //Activates the GPRS+GPS module: (1 and -3 are success code)
   retr = GPRS_SIM928A.ON();
@@ -62,53 +66,55 @@ void setup() {
     USB.println(F("Setting PIN code..."));
     if (GPRS_SIM928A.setPIN(simCode) == 1)
     {
-      USB.println(F("PIN code accepted")); 
+      USB.println(F("PIN code accepted"));
+      //Waits for connection to the network:
+      retr = GPRS_SIM928A.check(180);
+      if (retr == 1)
+      {
+        GPRS_SIM928A.set_APN(AT_GPRS_APN);
+        USB.println(F("GPRS+GPS module connected to the network..."));
+        // configures GPRS Connection for HTTP or FTP applications:
+        retr = GPRS_SIM928A.configureGPRS_HTTP_FTP(1);
+        if (retr == 1)
+        {
+          USB.println(F("Network configuration done"));
+          gprs = true;
+        }
+        else
+        {
+          USB.print(F("Network configuration failed. Error code:"));
+          USB.println(retr, DEC);
+        }
+      }
+      else
+      {
+        USB.println(F("GPRS+GPS module cannot connect to the network"));
+      }
     }
     else
     {
       USB.println(F("PIN code incorrect"));
     }
 
-    //Waits for connection to the network: 
-    retr = GPRS_SIM928A.check(180); 
-    if (retr == 1)
+    retr = GPRS_SIM928A.GPS_ON();
+    if(retr == 1)
     {
-      GPRS_SIM928A.set_APN(AT_GPRS_APN);
-      USB.println(F("GPRS+GPS module connected to the network..."));
-      // configures GPRS Connection for HTTP or FTP applications: 
-      retr = GPRS_SIM928A.configureGPRS_HTTP_FTP(1);
-      if (retr == 1)
+      USB.println(F("GPS engine started"));
+      bool status = GPRS_SIM928A.waitForGPSSignal(GPS_TIMEOUT);
+      if(status)
       {
-        USB.println(F("Network configuration done"));
-        retr = GPRS_SIM928A.GPS_ON();
-        if(retr == 1) 
-        {
-          USB.println(F("GPS engine started"));
-          bool status = GPRS_SIM928A.waitForGPSSignal(GPS_TIMEOUT);
-          if(status)
-          {
-            USB.println(F("GPS signal aquired"));
-            alive = true;
-          }
-          else 
-          {
-            USB.println(F("I couldn't get GPS signal. I'll just die now, reboot me pls"));
-          }
-        }
-        else  
-        {
-          USB.println(F("GPS engine couldn't start"));
-        }
-      } 
+        USB.println(F("GPS signal aquired"));
+        Utils.setLED(LED1, LED_ON);
+        alive = true;
+      }
       else
       {
-        USB.print(F("Network configuration failed. Error code:"));
-        USB.println(retr, DEC); 
+        USB.println(F("I couldn't get GPS signal. I'll just die now, reboot me pls"));
       }
-    } 
+    }
     else
     {
-      USB.println(F("GPRS+GPS module cannot connect to the network"));
+      USB.println(F("GPS engine couldn't start"));
     }
   }
   else
@@ -118,14 +124,10 @@ void setup() {
   USB.println(F("Waiting for button press"));
   do {
     //Wait
-  } while((val == digitalRead(DIGITAL3)) || !alive);
+  }
+  while((val == digitalRead(DIGITAL3)) || !alive);
   val = digitalRead(DIGITAL3);
-  USB.println(F("Starting a run..."));
-  strcpy(tmpString, BASE_URL);
-  strcat(tmpString, "/run.php?uid=1&start");
-  USB.print(F("Contacting "));
-  USB.println(tmpString);
-  GPRS_SIM928A.readURL(tmpString, 1);
+  startTime = millis();
 }
 
 
@@ -135,20 +137,51 @@ void setup() {
 void loop() {
   if(alive) {
     updateGPS();
+    sendGPSData();
+
+    pc++;
+    if(val != digitalRead(DIGITAL3)) {
+      endrun = true;
+    }
   }
 
-  if(endrun && alive) 
+  if(endrun && alive)
   {
-    //send a stop flag with the time elapsed, the pc*5 should be replaced with something more precise
-    sprintf(pcs, "%i", pc*5);
+    endRun();
+  }
+}
+
+void startRun() {
+  if(gprs) {
+    USB.println(F("Starting a run..."));
+    strcpy(tmpString, BASE_URL);
+    strcat(tmpString, "/run.php?uid=1&start");
+    USB.print(F("Contacting "));
+    USB.println(tmpString);
+    GPRS_SIM928A.readURL(tmpString, 1);
+  } 
+  else {
+    writeStartToSD();
+  }
+}
+
+void endRun() {
+  sprintf(time, "%i", (millis()-startTime) / 1000);
+  if(gprs) {
     strcpy(tmpString, BASE_URL);
     strcat(tmpString, "/run.php?uid=1&time=");
-    strcat(tmpString, pcs);
+    strcat(tmpString, time);
     strcat(tmpString, "&end");
     GPRS_SIM928A.readURL(tmpString, 1);
-    alive = false;
-    USB.println(F("Run stopped !"));
+  } 
+  else {
+    strcpy(tmpString, "/end;");
+    strcat(tmpString, "1;");
+    strcat(tmpString, time);
+    SD.appendln(DATA_FILE, tmpString);
   }
+  alive = false;
+  USB.println(F("Run stopped !"));
 }
 
 void updateGPS() {
@@ -159,7 +192,7 @@ void updateGPS() {
   a[1] = 0;
   while(i < 5) {
     retr = GPRS_SIM928A.getGPSData(1);
-    if(retr) 
+    if(retr)
     {
       P[i][0] = GPRS_SIM928A.longitude;
       P[i][1] = GPRS_SIM928A.latitude;
@@ -178,7 +211,7 @@ void updateGPS() {
   for(k = 0; k < i;k++) {
     if(sqrt((P[k][0] - a[0])*(P[k][0] - a[0])+(P[k][1] - a[1])*(P[k][1] - a[1])) > THRESHOLD) {
       P[k][0] = -200;
-    } 
+    }
     else {
       cnt++;
     }
@@ -207,8 +240,13 @@ void updateGPS() {
     Utils.float2String(a[1], y, 10);
     sprintf(pcs, "%i", pc);
     sprintf(time, "%i", millis() / 1000);
-    //Maybe add altitude and stuff
+  }
+}
+
+void sendGPSData() {
+  if(gprs) {
     //build url
+    Utils.setLED(LED0, LED_ON);
     strcpy(tmpString, BASE_URL);
     strcat(tmpString, "/run.php?uid=1&x=");
     strcat(tmpString, x);
@@ -221,20 +259,29 @@ void updateGPS() {
     USB.print(F("Contacting "));
     USB.println(tmpString);
     GPRS_SIM928A.readURL(tmpString, 1);
-
-    //counter increments, even if the gps fails, to keep data integrity
-    pc++;
-    if(val != digitalRead(DIGITAL3)) {
-      endrun = true;
-    }
-  } 
+    Utils.setLED(LED0, LED_OFF);
+  }
+  else {
+    writeGPSToSD();
+  }
 }
 
+void writeStartToSD() {
+  SD.create(DATA_FILE);
+  SD.appendln(DATA_FILE, "/start;1");
+}
 
-
-
-
-
-
+void writeGPSToSD() {
+  strcpy(tmpString, "/run;");
+  strcat(tmpString, x);
+  strcat(tmpString, ";");
+  strcat(tmpString, y);
+  strcat(tmpString, ";");
+  strcat(tmpString, pcs);
+  strcat(tmpString, ";");
+  strcat(tmpString, time);
+  strcat(tmpString, ";1");
+  SD.appendln(DATA_FILE, tmpString);
+}
 
 
