@@ -2,6 +2,8 @@ package ch.hepia.waspmasterrace.waspdroid;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -14,7 +16,14 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+
+import ch.hepia.waspmasterrace.waspdroid.data.RunDBContract.*;
+import ch.hepia.waspmasterrace.waspdroid.data.RunDBHelper;
 
 /**
  * Entry point of our program, displays the list of runs
@@ -72,11 +81,10 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //If the runList is not restored, we have to initialize it
-        if (this.runList == null) {
-            this.runList = new ArrayList<>();
-            Log.w(TAG,"Run list had to be initialized");
-        }
+        SQLiteDatabase db = new RunDBHelper(this).getReadableDatabase();
+
+        updateDataFromSQLite(db);
+
         //FAB code and listener for the settings button
         final FloatingActionButton settingsFab = (FloatingActionButton) findViewById(R.id.fab_main);
 
@@ -93,7 +101,7 @@ public class MainActivity extends AppCompatActivity {
         swipe2Refresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                updateData();
+                updateDataFromServer();
             }
         });
 
@@ -117,19 +125,61 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        updateData();
+        updateDataFromServer();
     }
 
     /**
      * Method to update the data from the server, launches update via AsyncTask
      */
-    private void updateData(){
+    private void updateDataFromServer(){
         //We get the server address and port from preferences
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         String baseUrl = prefs.getString(getString(R.string.pref_key_url),getString(R.string.pref_default_url));
         int portNumber = Integer.valueOf(prefs.getString(getString(R.string.pref_key_port),getString(R.string.pref_default_port)));
+        SQLiteDatabase db = new RunDBHelper(this).getWritableDatabase();
         //We create an asyncTask to take care of the network task
         AsyncTask task = new PHPConnector(baseUrl,portNumber,runArrayAdapter,this).execute();
     }
 
+    private void updateDataFromSQLite(SQLiteDatabase db){
+        this.runList = new ArrayList<>();
+        Cursor runListCursor = db.query(RunListEntry.TABLE_NAME,null,null,null,null,null,null);
+
+        if (runListCursor.moveToFirst()){
+            do {
+                int runID = runListCursor.getInt(runListCursor.getColumnIndex(RunListEntry.COLUMN_RUNID));
+                int userID = runListCursor.getInt(runListCursor.getColumnIndex(RunListEntry.COLUMN_USERID));
+                String date = runListCursor.getString(runListCursor.getColumnIndex(RunListEntry.COLUMN_DATE));
+                int seconds = runListCursor.getInt(runListCursor.getColumnIndex(RunListEntry.COLUMN_SECONDS));
+                //HH for 24hrs time, hh for 12hrs
+                DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                Calendar calDate = Calendar.getInstance();
+                try {
+                    calDate.setTime(df.parse(date));
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+
+                Run run = new Run(runID,userID,calDate,seconds);
+                ArrayList<DataPoint> data = new ArrayList<>();
+
+                Cursor runDataCursor = db.query(RunDataEntry.TABLE_NAME,null,RunDataEntry.COLUMN_RUNID+"=?",new String[]{String.valueOf(runID)},null,null,null);
+
+                if (runDataCursor.moveToFirst()){
+                    do {
+                        double x = runDataCursor.getDouble(runDataCursor.getColumnIndex(RunDataEntry.COLUMN_X));
+                        double y = runDataCursor.getDouble(runDataCursor.getColumnIndex(RunDataEntry.COLUMN_Y));
+                        int count = runDataCursor.getInt(runDataCursor.getColumnIndex(RunDataEntry.COLUMN_COUNT));
+                        int time = runDataCursor.getInt(runDataCursor.getColumnIndex(RunDataEntry.COLUMN_TIME));
+
+                        DataPoint point = new DataPoint(new GPScoordinates(x,y),count,time);
+                        data.add(point);
+                    }while (runDataCursor.moveToNext());
+                }
+
+                run.setRunData(data);
+                this.runList.add(run);
+            }while (runListCursor.moveToNext());
+        }
+    }
 }
