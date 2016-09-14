@@ -2,10 +2,17 @@
 #include <WaspUART.h>
 #include <WaspUSB.h>
 
+//URL to contact for run sending
 #define BASE_URL "http://sampang.internet-box.ch:8080"
+//In sec, time before failing the connection to the GPS network
 #define GPS_TIMEOUT 200
+//Number of tries (on try approx. 5 seconds) before failing connection to the WiFi network.
+#define WIFI_CONNECTION_TRYOUT 12
+//APN of the SIM card
 #define AT_GPRS_APN "internet"
+//WHATEVER THIS IS USED FOR, ZOMG WAT ???111
 #define THRESHOLD 0.0001
+//Name of the file containing a run on the SD card.
 #define DATA_FILE "DATA.TXT"
 
 //temp varible to check errors
@@ -37,7 +44,7 @@ char pcs[6];
 char time[6];
 //Array of GPS points
 float P[5][2];
-
+//Always useful.
 int i = 0;
 
 float a[2];
@@ -61,14 +68,6 @@ void setup() {
   SD.ON();
   USB.ON();
   USB.println(F("Setup started"));
-  
-  // Configures multiplexer for WiFly
-  Utils.setMuxAux1();
-  // Configures baudrate for WiFly
-  beginSerial(115200, 1);
-  //clear buffers, ready to use.
-  serialFlush(1); 
-  USB.println(F("WiFly module ready"));
 
   //Activates the GPRS+GPS module: (1 and -3 are success code)
   retr = GPRS_SIM928A.ON();
@@ -135,16 +134,19 @@ void setup() {
   {
     USB.println(F("GPRS+GPS module activation failed"));
   }
-  USB.println(F("Waiting for button press"));
-  do 
+
+  //If a run file is on the SD card, waspOS tries to send it immediately
+  retr = SD.isFile(DATA_FILE);
+  if(retr == 1)
   {
-    retr = SD.isFile(DATA_FILE);
-    if(retr == 1)
-    {
-      sendRunOverWifi();
-    }
-  } while((val == digitalRead(DIGITAL3)) || !alive);
+    sendRunOverWifi();
+  }
   
+  //Waiting for the button to change value, meaning activation.
+  USB.println(F("Waiting for button press"));
+  do { } while((val == digitalRead(DIGITAL3)) || !alive);
+  
+  //Updating position of button after change and starting the run.
   val = digitalRead(DIGITAL3);
   startTime = millis();
 }
@@ -155,23 +157,27 @@ void setup() {
  */
 void loop() 
 {
+  //Setup succeeded, the run is ongoing.
   if(alive) 
   {
     updateGPS();
     sendGPSData();
 
     pc++;
+    //Looking for a button movement, meaning end of run.
     if(val != digitalRead(DIGITAL3)) 
     {
       endrun = true;
     }
   }
 
+  //End of run asked, end of run still able to deliver !
   if(endrun && alive)
   {
     endRun();
   }
   
+  //If end of run created a datafile...
   if(datafileAvailable)
   {
     sendRunOverWifi();
@@ -182,6 +188,7 @@ void startRun()
 {
   if(gprs) 
   {
+    //Sending start signal to webserver.
     USB.println(F("Starting a run..."));
     strcpy(tmpString, BASE_URL);
     strcat(tmpString, "/run.php?uid=1&start");
@@ -189,6 +196,7 @@ void startRun()
     USB.println(tmpString);
     GPRS_SIM928A.readURL(tmpString, 1);
   } 
+  //In case the GPRS network bailed :
   else 
   {
     writeStartToSD();
@@ -197,9 +205,11 @@ void startRun()
 
 void endRun() 
 {
+  //Formating the time in sec, obtaining the total duration of the run
   sprintf(time, "%i", (millis()-startTime) / 1000);
   if(gprs) 
   {
+    //Sending end signal to server
     strcpy(tmpString, BASE_URL);
     strcat(tmpString, "/run.php?uid=1&time=");
     strcat(tmpString, time);
@@ -208,17 +218,21 @@ void endRun()
   } 
   else 
   {
+    //If no GPRS, appending end of run signal on SD card
     strcpy(tmpString, "/end;");
     strcat(tmpString, "1;");
     strcat(tmpString, time);
     SD.appendln(DATA_FILE, tmpString);
     
+    //Declaring a data file available.
     datafileAvailable = true;
   }
+  //Run is ended here, loop function will not do anything now.
   alive = false;
   USB.println(F("Run stopped !"));
 }
 
+//Very mysterious function believed to cause some shit in North Korea
 void updateGPS() 
 {
   i = 0;
@@ -290,7 +304,7 @@ void sendGPSData()
 {
   if(gprs) 
   {
-    //build url
+    //Build point adding signal and sending it to webserver
     Utils.setLED(LED0, LED_ON);
     strcpy(tmpString, BASE_URL);
     strcat(tmpString, "/run.php?uid=1&x=");
@@ -314,12 +328,14 @@ void sendGPSData()
 
 void writeStartToSD() 
 {
+  //Creating file if not existing and appending a start signal
   SD.create(DATA_FILE);
   SD.appendln(DATA_FILE, "/start;1");
 }
 
 void writeGPSToSD() 
 {
+  //Simply appending a run signal that can be understood by the socket
   strcpy(tmpString, "/run;");
   strcat(tmpString, x);
   strcat(tmpString, ";");
@@ -333,27 +349,38 @@ void writeGPSToSD()
 }
 
 void sendRunOverWifi()
-{
+{  
+  // Configures multiplexer for WiFly. Cannot be done at setup because of interferences with other modules' setup.
+  Utils.setMuxAux1();
+  beginSerial(115200, 1);
+  serialFlush(1); 
+  USB.println(F("WiFly module ready"));
   USB.println(F("Trying to send run over Wifi"));
   USB.println(F("Connecting"));
-  //serialFlush(1);
   delay(10);
   
+  //Loop for connection to the wify network
+  int tryout = 0;
   while(!network)
   {
+    //Entering conf mode for wifly
     printString("$$$", 1);
     delay(400);
     printNewline(1);
     
+    //Reading UART answer
     while(serialAvailable(1))
     {
       USB.print((char)serialRead(1));
     }
     USB.println();
     
+    //Trying to open the TCP connection stored in wifly conf
     printString("open\r\n", 1);
+    //Preparing string to store UART answer
     char* response = (char*) malloc(200 * sizeof(char));
     int i = 0;
+    //Waiting two seconds for answer
     delay(2000);
     while(serialAvailable(1))
     {
@@ -364,8 +391,10 @@ void sendRunOverWifi()
     }
     USB.println();
     
+    //Last character of answer should be this if the TCP connection opened. (WIFly answers "*OPEN*")
     if(response[i - 1] == '*')
     {
+      //Network acquired, otherwise loop will start another connection try.
       network = true;
       USB.println(F("NETWORK ACQUIRED"));
     }
@@ -374,26 +403,45 @@ void sendRunOverWifi()
     
     if(!network)
     {
+      //Exiting configuration mode to let wifly connect to WiFi network
       printString("exit\r\n", 1);
       delay(100);
+      //Printing WiFly answer to leaving conf mode
       while(serialAvailable(1))
       {
         USB.print((char)serialRead(1));
       }
       USB.println();
+      
+      //Adding a missed try
+      tryout++;
+      //If max missed tries reached, abandoning the connection
+      if(tryout >= WIFI_CONNECTION_TRYOUT)
+      {
+        USB.println(F("Max connections tries exceeded. Proceeding with execution. File not sent."));
+        return;
+      }
     }
+    //Waiting 5 seconds for WiFly to connect the WiFi network if not done already
     delay(5000);
   }
   
+  //Now that connection is obtained, checking the number of lines of the file
   retr = SD.numln(DATA_FILE);
+  //And reading lines one by one
   for(int i = 0 ; i < retr ; i++)
   {
     SD.catln(DATA_FILE, i, 1);
     
-    printString(SD.buffer, 1);
-    delay(10);
+    char* string = SD.buffer;
+    USB.print(F("NOW SENDING : "));
+    USB.println(string);
+    //And sending one line each 20ms to the socket
+    printString(string, 1);
+    delay(20);
   }
   
+  //Now that file is sent, entering conf mode in WiFly
   delay(1000);
   printString("$$$", 1);
   delay(400);
@@ -402,6 +450,7 @@ void sendRunOverWifi()
     USB.print((char)serialRead(1));
   }
   USB.println();
+  //Closing TCP connection
   printString("close\r\n", 1);
   delay(200);
   while(serialAvailable(1))
@@ -409,6 +458,7 @@ void sendRunOverWifi()
     USB.print((char)serialRead(1));
   }
   USB.println();
+  //And exiting conf mode
   printString("exit\r\n", 1);
   delay(200);
   while(serialAvailable(1))
@@ -416,8 +466,8 @@ void sendRunOverWifi()
     USB.print((char)serialRead(1));
   }
   USB.println();
-  USB.println(F("SLEEP MODE"));
-  delay(50000000);  
+  
+  //Then we delete the file on the SD card to allow a new run to be stored
   retr = SD.del(DATA_FILE);
   if(retr == 1)
   {
@@ -425,8 +475,8 @@ void sendRunOverWifi()
   }
   else
   {
-    USB.println(F("FILE NOT DELETED FOR SOME REASON, THANKS OBAMA"));
+    USB.println(F("FILE NOT DELETED FOR SOME REASON, THANKS OBAMA")); //Thanks Obama.
   }
 }
 
-
+//I'm a teapot.
