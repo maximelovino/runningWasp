@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 4.4.10
--- http://www.phpmyadmin.net
+-- version 4.6.4
+-- https://www.phpmyadmin.net/
 --
--- Client :  localhost:3306
--- Généré le :  Mar 30 Août 2016 à 14:06
--- Version du serveur :  5.5.42
--- Version de PHP :  7.0.8
+-- Client :  localhost
+-- Généré le :  Mer 14 Septembre 2016 à 10:33
+-- Version du serveur :  5.5.50-0+deb8u1
+-- Version de PHP :  5.6.24-0+deb8u1
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
@@ -31,7 +31,7 @@ USE `waspgps`;
 CREATE TABLE `t_group` (
   `idGroup` int(11) NOT NULL,
   `groupName` varchar(100) NOT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Contenu de la table `t_group`
@@ -52,14 +52,7 @@ CREATE TABLE `t_run` (
   `idUser` int(11) NOT NULL,
   `Date` datetime NOT NULL,
   `Seconds` int(11) NOT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=34 DEFAULT CHARSET=latin1;
-
---
--- Contenu de la table `t_run`
---
-
-INSERT INTO `t_run` (`idRun`, `idUser`, `Date`, `Seconds`) VALUES
-(33, 1, '2016-08-29 15:29:01', 86400);
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -72,17 +65,9 @@ CREATE TABLE `t_rundata` (
   `idRun` int(11) NOT NULL,
   `xcoord` double NOT NULL,
   `ycoord` double NOT NULL,
-  `count` int(11) NOT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=10404 DEFAULT CHARSET=latin1;
-
---
--- Contenu de la table `t_rundata`
---
-
-INSERT INTO `t_rundata` (`idRundata`, `idRun`, `xcoord`, `ycoord`, `count`) VALUES
-(1, 33, 12.34, 3.5, 1),
-(2, 33, 22.34, 3.5, 2),
-(3, 33, 22.34, 4.5, 3);
+  `count` int(11) NOT NULL,
+  `time` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -96,14 +81,7 @@ CREATE TABLE `t_runstats` (
   `speed` double NOT NULL,
   `maxSpeed` double NOT NULL,
   `idRun` int(11) NOT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=latin1;
-
---
--- Contenu de la table `t_runstats`
---
-
-INSERT INTO `t_runstats` (`idRunstats`, `distance`, `speed`, `maxSpeed`, `idRun`) VALUES
-(4, 1183189084, 13694.3180989, 0, 33);
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -115,15 +93,16 @@ CREATE TABLE `t_user` (
   `idUser` int(11) NOT NULL,
   `username` varchar(100) NOT NULL,
   `password` varchar(255) NOT NULL,
-  `group` int(11) NOT NULL
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
+  `group` int(11) NOT NULL,
+  `running` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Contenu de la table `t_user`
 --
 
-INSERT INTO `t_user` (`idUser`, `username`, `password`, `group`) VALUES
-(1, 'issou', '81fe8bfe87576c3ecb22426f8e57847382917acf', 1);
+INSERT INTO `t_user` (`idUser`, `username`, `password`, `group`, `running`) VALUES
+(1, 'issou', '81fe8bfe87576c3ecb22426f8e57847382917acf', 1, 0);
 
 --
 -- Index pour les tables exportées
@@ -173,27 +152,27 @@ ALTER TABLE `t_user`
 -- AUTO_INCREMENT pour la table `t_group`
 --
 ALTER TABLE `t_group`
-  MODIFY `idGroup` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=3;
+  MODIFY `idGroup` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 --
 -- AUTO_INCREMENT pour la table `t_run`
 --
 ALTER TABLE `t_run`
-  MODIFY `idRun` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=34;
+  MODIFY `idRun` int(11) NOT NULL AUTO_INCREMENT;
 --
 -- AUTO_INCREMENT pour la table `t_rundata`
 --
 ALTER TABLE `t_rundata`
-  MODIFY `idRundata` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=10404;
+  MODIFY `idRundata` int(11) NOT NULL AUTO_INCREMENT;
 --
 -- AUTO_INCREMENT pour la table `t_runstats`
 --
 ALTER TABLE `t_runstats`
-  MODIFY `idRunstats` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=5;
+  MODIFY `idRunstats` int(11) NOT NULL AUTO_INCREMENT;
 --
 -- AUTO_INCREMENT pour la table `t_user`
 --
 ALTER TABLE `t_user`
-  MODIFY `idUser` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=2;
+  MODIFY `idUser` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 --
 -- Contraintes pour les tables exportées
 --
