@@ -148,6 +148,7 @@ void setup() {
   //Updating position of button after change and starting the run.
   val = digitalRead(DIGITAL3);
   startTime = millis();
+  startRun();
 }
 
 
