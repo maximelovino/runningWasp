@@ -10,7 +10,11 @@
 \begin{document}
 \maketitle
 \section{Introduction}
-Bla bla projet bla bla bla
+WaspRunner est un projet miniature et compact de traceur GPS pour joggeurs soucieux de travailler leur VMA.\newline
+WaspRunner se compose de trois éléments : un module traceur à emporter avec soi durant la course (fort heureusement le module est léger et compact - il peut facilement être transporté dans une valise à roulette), un serveur web sur Raspberry Pi, ainsi que d'une application Android.\newline
+Le traceur est lui-même fait d'une carte waspmote équipée d'un module GPS et GPRS, d'une carte wifi dont la simplicité n'a d'égal que la fiabilité, d'une batterie faisant aussi office de lest pour que le coureur ne dépasse pas les limitations de vitesses du code de la route, ainsi que d'une carte microSD pour sauvegarder les courses.\newline
+Le serveur web récupère les données GPS du traceur, les traite et les stocke. Il fournit également la possibilité de consulter les rapports de courses sur Internet.\newline
+L'application Android permet quant à elle de recevoir les rapports de course directement sur son smartphone.\newline
 \section{Réalisation}
 \subsection{Récupération et envoi des données GPS}
 La première étape pour notre application est de récupérer la position actuelle via GPS, le module GPRS+GPS de la Waspmote s'occupe de nous donner la position en degrés [-180;180].\newline
@@ -51,6 +55,11 @@ $\varphi_1 \; et \; \varphi_2$ sont les longitudes des deux points\newline
 $\lambda_1 \; et \; \lambda_2$ sont les latitudes des deux points\newline
 $r$ est le rayon de la terre (6371 Km)\newline
 \subsection{Stockage des données en cas de problème de réseau}
+Dans le cas où le module est incapable, pour une raison ou une autre, de se connecter au réseau GPRS avant qu'une course ne soit démarrée, il nous a fallu trouver un moyen de ne pas rendre le module inutilisable. Pour cela, nous avons fait le choix de permettre à l'utilisateur de sauvegarder les données de la course sur une carte SD.\newline
+Dans le cas où le réseau GPRS est inaccessible au moment où doit démarrer une course, les données GPS et tous les points sont sauvegardés sur un fichier texte présent dans la carte SD, sous la forme de lignes de commandes. La course se déroule alors normalement, chaque point étant sauvegardé sur la carte SD.\newline
+Lorsque la course est stoppée, le fichier est rendu disponible à l'envoi. Immédiatement, la carte WiFly s'active et essaye de se connecter au réseau WiFi sauvegardé dans sa configuration. De la même manière, si la carte s'allume et qu'un fichier de course est présent en mémoire, elle essayera d'abord d'envoyer le fichier avant de laisser l'utilisateur démarrer une course.\newline
+Sitôt que la carte parvient à se connecter à un réseau WiFy, elle ouvre une connexion vers un socket java présent sur le serveau web. Lorsque la connexion TCP est établie, la carte envoie ligne par ligne les données présentes sur le fichier, puis se déconnecte et, si les données ont été correctement envoyée, détruit le fichier. Une nouvelle course peut alors être lancée.\newline
+Dans le cas où la carte est incapable d'obtenir une connexion WiFi ou TCP, et ce afin d'éviter un comportement bloquant pour l'utilisateur, un timeout a été mis en place. Globalement, une tentative de connexion prend 5 secondes, aussi nous avons limité le nombre de tentatives à 12 afin que la carte essaye de se connecter pendant environ une minute avant d'abandonner et de laisser l'utilisateur démarrer, s'il le souhaite, une nouvelle course. Par ailleurs, si cette nouvelle course doit être enregistrée sur la carte SD, elle sera simplement ajoutée à la suite de celle déjà présente.\newline
 
 
 \end{document}
