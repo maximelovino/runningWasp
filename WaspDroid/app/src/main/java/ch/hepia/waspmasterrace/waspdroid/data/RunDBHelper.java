@@ -7,13 +7,18 @@ import android.database.sqlite.SQLiteOpenHelper;
 import ch.hepia.waspmasterrace.waspdroid.data.RunDBContract.*;
 
 /**
- * Created by maximelovino on 13/09/16.
+ * Helper class for our SQLite database
  */
 public class RunDBHelper extends SQLiteOpenHelper {
 
     private static final int DB_VERSION = 1;
     private static final String DB_NAME = "run.db";
 
+    /**
+     * Default constructor for RunDBHelper
+     *
+     * @param context   The context of the call
+     */
     public RunDBHelper(Context context){
         super(context,DB_NAME,null, DB_VERSION);
     }
@@ -26,6 +31,7 @@ public class RunDBHelper extends SQLiteOpenHelper {
      */
     @Override
     public void onCreate(SQLiteDatabase db) {
+        //Creating run table
         final String SQL_CREATE_T_RUN_TABLE = "CREATE TABLE "+ RunListEntry.TABLE_NAME+" ("+
                 RunListEntry._ID+" INTEGER PRIMARY KEY AUTOINCREMENT,"+
                 RunListEntry.COLUMN_RUNID+" INTEGER NOT NULL, "+
@@ -35,6 +41,7 @@ public class RunDBHelper extends SQLiteOpenHelper {
 
         db.execSQL(SQL_CREATE_T_RUN_TABLE);
 
+        //Creating runData table
         final String SQL_CREATE_T_RUNDATA_TABLE = "CREATE TABLE "+ RunDataEntry.TABLE_NAME+" ("+
                 RunDataEntry._ID+" INTEGER PRIMARY KEY AUTOINCREMENT, "+
                 RunDataEntry.COLUMN_RUNID+" INTEGER NOT NULL, "+
@@ -42,7 +49,7 @@ public class RunDBHelper extends SQLiteOpenHelper {
                 RunDataEntry.COLUMN_Y+" DOUBLE NOT NULL, "+
                 RunDataEntry.COLUMN_COUNT+" INTEGER NOT NULL, "+
                 RunDataEntry.COLUMN_TIME+" INTEGER NOT NULL, "+
-
+                //Foreing key for RunID from Run table
                 " FOREIGN KEY ("+RunDataEntry.COLUMN_RUNID+") REFERENCES "+
                 RunListEntry.TABLE_NAME+" ("+RunListEntry.COLUMN_RUNID+"));";
 
@@ -71,12 +78,18 @@ public class RunDBHelper extends SQLiteOpenHelper {
      */
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        //We just clear everything when we update (data is not important, it's just cache)
+        clear(db);
+    }
+
+    /**
+     * Method that drops the tables and recreates them
+     *
+     * @param db    The database we want to clear
+     */
+    public void clear(SQLiteDatabase db) {
         db.execSQL("DROP TABLE IF EXISTS "+RunListEntry.TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS "+RunDataEntry.TABLE_NAME);
         onCreate(db);
-    }
-
-    public void clear(SQLiteDatabase db) {
-        onUpgrade(db,this.DB_VERSION,this.DB_VERSION);
     }
 }

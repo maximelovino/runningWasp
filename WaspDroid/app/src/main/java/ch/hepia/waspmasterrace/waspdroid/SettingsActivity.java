@@ -47,7 +47,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         addPreferencesFromResource(R.xml.pref_general);
         setupActionBar();
         Preference clearCache = (Preference) findPreference(getString(R.string.pref_clearDB));
-
+        //If we eat clear cache, we call the method to clear the DB, and throw a toast
         clearCache.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             /**
              * Called when a Preference has been clicked.

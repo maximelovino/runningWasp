@@ -3,10 +3,13 @@ package ch.hepia.waspmasterrace.waspdroid.data;
 import android.provider.BaseColumns;
 
 /**
- * Created by maximelovino on 13/09/16.
+ * Class to implement some static nested classes containing the column names for our tables
  */
 public class RunDBContract {
 
+    /**
+     * Class for the Runs table
+     */
     public static final class RunListEntry implements BaseColumns {
         public static final String TABLE_NAME = "t_run";
 
@@ -17,7 +20,9 @@ public class RunDBContract {
 
     }
 
-
+    /**
+     * Class for the runData table
+     */
     public static final class RunDataEntry implements BaseColumns {
         public static final String TABLE_NAME = "t_rundata";
 

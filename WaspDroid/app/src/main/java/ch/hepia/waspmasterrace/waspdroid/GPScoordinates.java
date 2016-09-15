@@ -6,10 +6,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
- * Created by maximelovino on 30/08/16.
- */
-
-/**
  * Class to define GPS coordinates, and geo methods
  */
 public class GPScoordinates implements Serializable {
@@ -56,13 +52,10 @@ public class GPScoordinates implements Serializable {
 
         double lambda2 = Math.toRadians(secondCoordinate.getXCoord());
         double phi2 = Math.toRadians(secondCoordinate.getYCoord());
-        System.out.println(lambda1+";"+phi1+";"+lambda2+";"+phi2);
 
         double alpha = Math.pow(Math.sin((phi1-phi2)/2.0),2) + Math.cos(phi1)*Math.cos(phi2)*Math.pow(Math.sin((lambda1-lambda2)/2.0),2);
-        System.out.println(alpha);
 
         double result = 2 * EARTH_RADIUS * Math.atan(Math.sqrt(alpha)/(Math.sqrt(1-alpha)));
-        System.out.println(result);
         return result;
     }
 

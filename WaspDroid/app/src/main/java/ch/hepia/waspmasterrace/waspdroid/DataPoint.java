@@ -4,10 +4,6 @@ import java.io.Serializable;
 import java.util.Comparator;
 
 /**
- * Created by maximelovino on 09/09/16.
- */
-
-/**
  * Class to implement a DataPoint for the run, Serializable to be passed in an intent
  *
  * A DataPoint consists of a coordinate, sequence number and time
@@ -177,7 +173,6 @@ public class DataPoint implements Serializable,Comparator,Comparable {
      */
     @Override
     public String toString() {
-        return "---------------\n Point: "+this.getPoint()+"\nCount: "+this.getCount()+"\nTime: "+this.getTime()+"\n-------------\n";
-
+        return "Point: "+this.getPoint()+"\nCount: "+this.getCount()+"\nTime: "+this.getTime()+"\n";
     }
 }

@@ -23,7 +23,7 @@ import ch.hepia.waspmasterrace.waspdroid.data.RunDBContract.*;
 import ch.hepia.waspmasterrace.waspdroid.data.RunDBHelper;
 
 /**
- * Created by maximelovino on 01/09/16.
+ * Class to work with our php server hook
  */
 public class PHPConnector extends AsyncTask<Void,Void,ArrayList<Run>> {
 
@@ -36,6 +36,16 @@ public class PHPConnector extends AsyncTask<Void,Void,ArrayList<Run>> {
     private RunDBHelper helper;
     private static final String TAG = PHPConnector.class.getName();
 
+    /**
+     * Default constructor for our connector
+     *
+     * @param baseURL   The url of the server
+     * @param portNumber    The port to use
+     * @param runAdapter    The adapter to populate
+     * @param activity  The calling activity
+     * @param db    The database to update
+     * @param helper    The database helper instance
+     */
     public PHPConnector(String baseURL,int portNumber, ArrayAdapter<Run> runAdapter, MainActivity activity, SQLiteDatabase db, RunDBHelper helper){
         this.baseURL = baseURL;
         this.portNumber = portNumber;
@@ -46,23 +56,36 @@ public class PHPConnector extends AsyncTask<Void,Void,ArrayList<Run>> {
         buildServerPath();
     }
 
+    /**
+     *
+     * @return  The full server path (url+port)
+     */
     public String getServerPath(){
         return this.serverPath;
     }
 
+    /**
+     * Builds the server path
+     */
     private void buildServerPath(){
         this.serverPath = this.baseURL +":"+ this.portNumber;
     }
 
+    /**
+     *
+     * @return  An arraylist of Runs objects, fetched from the server
+     * @throws IOException
+     * @throws ParseException
+     */
     private ArrayList<Run> getRunList() throws IOException, ParseException {
-        //runID;DATE
+        //runID;DATE;Time
 
         ArrayList<Run> runList = new ArrayList<>();
         URL url = new URL("http://"+this.serverPath+"/android.php?uid=1&listrun");
 
 
         URLConnection urlConnection = url.openConnection();
-        System.out.println("Connection opened with runList, URL:"+url);
+        Log.v(TAG,"Connection opened with runList, URL:"+url);
 
         BufferedReader inStream = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
 
@@ -70,7 +93,8 @@ public class PHPConnector extends AsyncTask<Void,Void,ArrayList<Run>> {
         String inputLine;
         while ((inputLine = inStream.readLine())!=null){
             String[] lineArray = inputLine.split(";");
-            System.out.println("line: "+inputLine);
+            Log.v(TAG,"line: "+inputLine);
+            //If line empty, we jump
             if (inputLine.equals(""))
                 continue;
 
@@ -80,10 +104,7 @@ public class PHPConnector extends AsyncTask<Void,Void,ArrayList<Run>> {
             DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             Calendar date = Calendar.getInstance();
             date.setTime(df.parse(lineArray[1]));
-            System.out.println("DATE: "+date.getTime());
-
             int timeOfRun = Integer.valueOf(lineArray[2]);
-
             Run run = new Run(runID,date,timeOfRun);
             run.setRunData(getRunData(run.getRunID()));
             runList.add(run);
@@ -94,8 +115,12 @@ public class PHPConnector extends AsyncTask<Void,Void,ArrayList<Run>> {
         return runList;
     }
 
-
-
+    /**
+     *
+     * @param runID The id of the run we want the data for
+     * @return  The datapoints for a run
+     * @throws IOException
+     */
     private ArrayList<DataPoint> getRunData(int runID) throws IOException {
 
         ArrayList<DataPoint> runData = new ArrayList<>();
@@ -104,7 +129,6 @@ public class PHPConnector extends AsyncTask<Void,Void,ArrayList<Run>> {
         URL url = new URL("http://"+this.serverPath+"/android.php?uid=1&rundata&idRun="+runID);
 
         URLConnection urlConnection = url.openConnection();
-        System.out.println("Connection opened");
 
         BufferedReader inStream = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
 
@@ -149,12 +173,10 @@ public class PHPConnector extends AsyncTask<Void,Void,ArrayList<Run>> {
     @Override
     protected ArrayList<Run> doInBackground(Void... params) {
         try {
-            System.out.println("syncing");
+            Log.v(TAG,"syncing");
             return getRunList();
         } catch (Exception e) {
-            System.out.println("fail");
-
-
+            Log.w(TAG,"there was a problem with syncing");
             e.printStackTrace();
             return null;
         }
@@ -174,21 +196,25 @@ public class PHPConnector extends AsyncTask<Void,Void,ArrayList<Run>> {
     @Override
     protected void onPostExecute(ArrayList<Run> runs) {
         super.onPostExecute(runs);
-        System.out.println("finished sync");
+        Log.v(TAG,"syncing bg task done");
         if (runs!=null){
-            System.out.println("we've got data");
+            Log.v(TAG,"we have data");
             runAdapter.clear();
             runAdapter.addAll(runs);
             updateDB(runs);
         }else{
-            System.out.println("hello from null world");
             Toast.makeText(activity,"Couldn't sync data",Toast.LENGTH_LONG).show();
-            System.out.println("hello from after toast");
+            Log.w(TAG,"sync wasn't possible");
         }
         if (activity.swipe2Refresh.isRefreshing())
             activity.swipe2Refresh.setRefreshing(false);
     }
 
+    /**
+     * We update the database, using a diff, we insert only elements that aren't already present
+     *
+     * @param runs  The list of all runs
+     */
     private void updateDB(ArrayList<Run> runs){
         for (Run run : runs) {
             int runID = run.getRunID();
@@ -196,7 +222,6 @@ public class PHPConnector extends AsyncTask<Void,Void,ArrayList<Run>> {
             int seconds = run.getTimeOfRun();
             String date = run.getDateForDB();
             ArrayList<DataPoint> points = run.getRunData();
-
 
             String query = "select count(*) from "+RunListEntry.TABLE_NAME+" where "+RunListEntry.COLUMN_RUNID+"="+runID;
 

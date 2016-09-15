@@ -10,7 +10,6 @@ import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -22,7 +21,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 
-import ch.hepia.waspmasterrace.waspdroid.data.RunDBContract.*;
+import ch.hepia.waspmasterrace.waspdroid.data.RunDBContract.RunDataEntry;
+import ch.hepia.waspmasterrace.waspdroid.data.RunDBContract.RunListEntry;
 import ch.hepia.waspmasterrace.waspdroid.data.RunDBHelper;
 
 /**
@@ -35,16 +35,15 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = MainActivity.class.getName();
     RunDBHelper dbHelper;
 
-    //TODO check if we should implement a recycler view
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        //Setting the adapter and list view to display the runs
+        //Setting the adapter to display the runs
         runArrayAdapter = new ArrayAdapter<>(this,R.layout.list_run_item,R.id.list_run_item_text,new ArrayList<Run>());
         dbHelper = new RunDBHelper(this);
         SQLiteDatabase db = dbHelper.getReadableDatabase();
-
+        //we load data from local DB first and the update from server will happen in onStart(
         updateDataFromSQLite(db);
 
         //FAB code and listener for the settings button
@@ -97,11 +96,17 @@ public class MainActivity extends AppCompatActivity {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         String baseUrl = prefs.getString(getString(R.string.pref_key_url),getString(R.string.pref_default_url));
         int portNumber = Integer.valueOf(prefs.getString(getString(R.string.pref_key_port),getString(R.string.pref_default_port)));
+        //we will pass the db, so it updates as well
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         //We create an asyncTask to take care of the network task
         AsyncTask task = new PHPConnector(baseUrl,portNumber,runArrayAdapter,this,db,dbHelper).execute();
     }
 
+    /**
+     * Populates the runAdapter with data from the local SQLite database
+     *
+     * @param db    The database to read from
+     */
     private void updateDataFromSQLite(SQLiteDatabase db){
         Cursor runListCursor = db.query(RunListEntry.TABLE_NAME,null,null,null,null,null,null);
 

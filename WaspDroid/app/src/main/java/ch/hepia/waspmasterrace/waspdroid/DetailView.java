@@ -8,6 +8,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -28,34 +29,35 @@ import java.net.MalformedURLException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 
+/**
+ * Detail activity to display the data of a Run
+ */
 public class DetailView extends AppCompatActivity implements OnMapReadyCallback {
     private Run run;
     private GoogleMap mMap;
     private final int REQUEST_LOCATION_CODE = 42;
+    private static final String TAG = DetailView.class.getName();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.detail_view);
-        System.out.println("we're in detail view");
+        //we unpack the run from the intent
         this.run = (Run) getIntent().getSerializableExtra("RUN");
-
-
+        //we get the map fragment from the layout
         MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map_detail_view);
-
+        //To set Run XX as the subtitle for the action bar
         ActionBar actionBar = getSupportActionBar();
-
         actionBar.setSubtitle("Run "+run.getRunID());
-
+        //call to load the map in another thread
         mapFragment.getMapAsync(this);
-
-
     }
 
 
     @Override
     protected void onStart() {
         super.onStart();
+        //We compute the stats and display it where they should be
         run.computeStats();
         TextView dateTxt = (TextView) findViewById(R.id.run_date_value);
         TextView timeTxt = (TextView) findViewById(R.id.run_time_value);
@@ -63,10 +65,8 @@ public class DetailView extends AppCompatActivity implements OnMapReadyCallback 
         TextView avgSpeedTxt = (TextView) findViewById(R.id.run_avgSpeed_value);
         TextView maxSpeedTxt = (TextView) findViewById(R.id.run_maxSpeed_value);
         TextView paceTxt = (TextView) findViewById(R.id.run_pace_value);
-
         dateTxt.setText(run.getDateAsString());
         timeTxt.setText(String.valueOf(run.getTimeOfRun())+" s");
-
         DecimalFormat df = new DecimalFormat("#.###");
         distanceTxt.setText(df.format(run.getDistanceInKm())+" km");
         avgSpeedTxt.setText(df.format(run.getAvgSpeedAsKmh())+" km/h");
@@ -103,7 +103,7 @@ public class DetailView extends AppCompatActivity implements OnMapReadyCallback 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
-
+        //menu consists of the share button
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.detail_view_menu,menu);
 
@@ -131,9 +131,10 @@ public class DetailView extends AppCompatActivity implements OnMapReadyCallback 
         switch (item.getItemId()) {
             case R.id.share:
                 try {
+                    //we launch the shareIntent when clicking on Share
                     startActivity(createShareIntent());
                 } catch (MalformedURLException e) {
-                    System.out.println("Couldn't share url");
+                    Log.w(TAG,"Couldn't form Share url");
                     e.printStackTrace();
                 }
                 return true;
@@ -142,6 +143,12 @@ public class DetailView extends AppCompatActivity implements OnMapReadyCallback 
         }
     }
 
+    /**
+     * Create a sharing intent for our web interface
+     *
+     * @return  The share intent
+     * @throws MalformedURLException
+     */
     private Intent createShareIntent() throws MalformedURLException {
         Intent intent = new Intent(Intent.ACTION_SEND);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
@@ -163,21 +170,23 @@ public class DetailView extends AppCompatActivity implements OnMapReadyCallback 
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-        ArrayList<DataPoint> points = run.getRunData();
-        //mMap.setMyLocationEnabled(true);
+
+
+        //Request for location permission
         if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
-            System.out.println("hello, permission granted");
+            Log.v(TAG,"Location permission is already granted");
             mMap.setMyLocationEnabled(true);
         } else {
-            System.out.println("hello from the poors");
+            Log.v(TAG,"We don't have location permission yet");
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
                 this.requestPermissions(new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},REQUEST_LOCATION_CODE);
         }
 
+        //If we have points, we build a polyline and we prepare bounds
+        ArrayList<DataPoint> points = run.getRunData();
         if (!points.isEmpty()) {
             LatLngBounds.Builder builder = new LatLngBounds.Builder();
-
             PolylineOptions poly = new PolylineOptions();
 
             for (DataPoint point : points) {
@@ -191,10 +200,11 @@ public class DetailView extends AppCompatActivity implements OnMapReadyCallback 
             // We add a marker to denote the start of the run
             mMap.addMarker(new MarkerOptions().position(points.get(0).getPoint().getForMaps()).title("Start point"));
 
-            // We wait for the map to load before settings the bound, otherwise it results in a crash
+            // We wait for the map to load before setting the bounds otherwise it may result in a crash
             mMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
                 @Override
                 public void onMapLoaded() {
+                    //100 margin is arbitrary
                     CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds,100);
                     mMap.animateCamera(cu);
                 }
