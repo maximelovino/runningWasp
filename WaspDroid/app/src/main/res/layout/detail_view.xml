@@ -152,11 +152,32 @@
 
 
             </LinearLayout>
-            <Button
+            <LinearLayout
+                android:orientation="horizontal"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/show_on_maps"
-                android:id="@+id/show_on_maps"/>
+                android:paddingBottom="10dp"
+                android:paddingTop="10dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:text="@string/run_pace_header"
+
+                    android:layout_weight="@integer/header_stats_weight"
+                    android:id="@+id/run_pace_header" />
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="@integer/value_stats_weight"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:text="hello world"
+                    android:id="@+id/run_pace_value"/>
+
+
+            </LinearLayout>
+
 
         </LinearLayout>
 

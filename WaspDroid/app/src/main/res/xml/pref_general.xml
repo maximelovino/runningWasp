@@ -18,4 +18,7 @@
         android:selectAllOnFocus="true"
         android:singleLine="true"
         />
+    <Preference
+        android:title="Clear local database"
+        android:key="@string/pref_clearDB"></Preference>
 </PreferenceScreen>

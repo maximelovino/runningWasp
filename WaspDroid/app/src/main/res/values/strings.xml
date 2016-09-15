@@ -20,6 +20,8 @@
     <string name="run_avgSpeed_header">Average Speed</string>
     <string name="run_maxSpeed_header">Maximum Speed</string>
     <string name="show_on_maps">View on full screen maps</string>
+    <string name="run_pace_header">Average pace</string>
+    <string name="pref_clearDB">clearDB</string>
 
 
 </resources>

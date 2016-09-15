@@ -39,22 +39,30 @@ public class DetailView extends AppCompatActivity implements OnMapReadyCallback 
         setContentView(R.layout.detail_view);
         System.out.println("we're in detail view");
         this.run = (Run) getIntent().getSerializableExtra("RUN");
-        run.computeStats();
+
 
         MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map_detail_view);
 
         ActionBar actionBar = getSupportActionBar();
 
-        actionBar.setSubtitle(run.toString());
+        actionBar.setSubtitle("Run "+run.getRunID());
 
         mapFragment.getMapAsync(this);
 
+
+    }
+
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        run.computeStats();
         TextView dateTxt = (TextView) findViewById(R.id.run_date_value);
         TextView timeTxt = (TextView) findViewById(R.id.run_time_value);
         TextView distanceTxt = (TextView) findViewById(R.id.run_distance_value);
         TextView avgSpeedTxt = (TextView) findViewById(R.id.run_avgSpeed_value);
         TextView maxSpeedTxt = (TextView) findViewById(R.id.run_maxSpeed_value);
-
+        TextView paceTxt = (TextView) findViewById(R.id.run_pace_value);
 
         dateTxt.setText(run.getDateAsString());
         timeTxt.setText(String.valueOf(run.getTimeOfRun())+" s");
@@ -63,7 +71,7 @@ public class DetailView extends AppCompatActivity implements OnMapReadyCallback 
         distanceTxt.setText(df.format(run.getDistanceInKm())+" km");
         avgSpeedTxt.setText(df.format(run.getAvgSpeedAsKmh())+" km/h");
         maxSpeedTxt.setText(df.format(run.getMaxSpeedAsKmh())+" km/h");
-
+        paceTxt.setText(df.format(run.getPaceInMinKm())+" min/km");
     }
 
     /**
@@ -129,10 +137,6 @@ public class DetailView extends AppCompatActivity implements OnMapReadyCallback 
                     e.printStackTrace();
                 }
                 return true;
-            case R.id.show_on_maps:
-                Intent mapIntent = new Intent(this,MapsActivity.class);
-                mapIntent.putExtra("RUN",run);
-                startActivity(mapIntent);
             default:
                 return super.onOptionsItemSelected(item);
         }

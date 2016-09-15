@@ -75,4 +75,8 @@ public class RunDBHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS "+RunDataEntry.TABLE_NAME);
         onCreate(db);
     }
+
+    public void clear(SQLiteDatabase db) {
+        onUpgrade(db,this.DB_VERSION,this.DB_VERSION);
+    }
 }

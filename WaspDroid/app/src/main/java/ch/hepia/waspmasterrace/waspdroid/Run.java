@@ -33,6 +33,8 @@ public class Run implements Serializable{
     private Double maxSpeed;
     private Double distance;
     private Double avgSpeed;
+    private Double pace;
+
     /**
      * Default constructor for Run, uses userID 1
      *
@@ -128,7 +130,7 @@ public class Run implements Serializable{
         this.avgSpeed = dist / this.timeOfRun;
         System.out.println("Distance: "+dist+", Time: "+this.timeOfRun+", Speed: "+this.avgSpeed);
         this.maxSpeed = highSpeed;
-
+        this.pace = this.timeOfRun / this.distance;
     }
 
     public Double getMaxSpeed() {
@@ -163,8 +165,16 @@ public class Run implements Serializable{
         return this.distance / 1000;
     }
 
+    public Double getPaceInMinKm(){
+        return this.pace / 60 * 1000;
+    }
+
     public String getDateForDB() {
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         return df.format(this.getStartDate());
+    }
+
+    public Double getPace() {
+        return pace;
     }
 }

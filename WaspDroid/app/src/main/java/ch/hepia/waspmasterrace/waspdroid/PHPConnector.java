@@ -1,8 +1,10 @@
 package ch.hepia.waspmasterrace.waspdroid;
 
 import android.content.ContentValues;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
+import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
@@ -32,6 +34,7 @@ public class PHPConnector extends AsyncTask<Void,Void,ArrayList<Run>> {
     private MainActivity activity;
     private SQLiteDatabase db;
     private RunDBHelper helper;
+    private static final String TAG = PHPConnector.class.getName();
 
     public PHPConnector(String baseURL,int portNumber, ArrayAdapter<Run> runAdapter, MainActivity activity, SQLiteDatabase db, RunDBHelper helper){
         this.baseURL = baseURL;
@@ -187,10 +190,6 @@ public class PHPConnector extends AsyncTask<Void,Void,ArrayList<Run>> {
     }
 
     private void updateDB(ArrayList<Run> runs){
-        this.db.execSQL("DROP TABLE IF EXISTS "+ RunListEntry.TABLE_NAME);
-        this.db.execSQL("DROP TABLE IF EXISTS "+ RunDataEntry.TABLE_NAME);
-        helper.onCreate(this.db);
-
         for (Run run : runs) {
             int runID = run.getRunID();
             int userID = run.getUserID();
@@ -198,30 +197,44 @@ public class PHPConnector extends AsyncTask<Void,Void,ArrayList<Run>> {
             String date = run.getDateForDB();
             ArrayList<DataPoint> points = run.getRunData();
 
-            ContentValues runLine = new ContentValues();
-            runLine.put(RunListEntry.COLUMN_RUNID,runID);
-            runLine.put(RunListEntry.COLUMN_DATE,date);
-            runLine.put(RunListEntry.COLUMN_SECONDS,seconds);
-            runLine.put(RunListEntry.COLUMN_USERID,userID);
 
-            this.db.insert(RunListEntry.TABLE_NAME,null,runLine);
+            String query = "select count(*) from "+RunListEntry.TABLE_NAME+" where "+RunListEntry.COLUMN_RUNID+"="+runID;
 
-            for (DataPoint point : points) {
-                GPScoordinates gps = point.getPoint();
-                double x = gps.getXCoord();
-                double y = gps.getYCoord();
-                int count = point.getCount();
-                int time = point.getTime();
+            Cursor tempCursor = this.db.rawQuery(query,null);
+            int elements = 1;
 
-                ContentValues pointLine = new ContentValues();
-                pointLine.put(RunDataEntry.COLUMN_RUNID,runID);
-                pointLine.put(RunDataEntry.COLUMN_X,x);
-                pointLine.put(RunDataEntry.COLUMN_Y,y);
-                pointLine.put(RunDataEntry.COLUMN_COUNT,count);
-                pointLine.put(RunDataEntry.COLUMN_TIME,time);
-
-                this.db.insert(RunDataEntry.TABLE_NAME,null,pointLine);
+            if (tempCursor.moveToFirst()) {
+                elements = tempCursor.getInt(0);
             }
+
+            if (elements==0){
+                Log.v(TAG,"Inserting an element in db, run "+runID);
+                ContentValues runLine = new ContentValues();
+                runLine.put(RunListEntry.COLUMN_RUNID,runID);
+                runLine.put(RunListEntry.COLUMN_DATE,date);
+                runLine.put(RunListEntry.COLUMN_SECONDS,seconds);
+                runLine.put(RunListEntry.COLUMN_USERID,userID);
+                this.db.insert(RunListEntry.TABLE_NAME,null,runLine);
+
+                for (DataPoint point : points) {
+                    GPScoordinates gps = point.getPoint();
+                    double x = gps.getXCoord();
+                    double y = gps.getYCoord();
+                    int count = point.getCount();
+                    int time = point.getTime();
+
+                    ContentValues pointLine = new ContentValues();
+                    pointLine.put(RunDataEntry.COLUMN_RUNID,runID);
+                    pointLine.put(RunDataEntry.COLUMN_X,x);
+                    pointLine.put(RunDataEntry.COLUMN_Y,y);
+                    pointLine.put(RunDataEntry.COLUMN_COUNT,count);
+                    pointLine.put(RunDataEntry.COLUMN_TIME,time);
+
+                    this.db.insert(RunDataEntry.TABLE_NAME,null,pointLine);
+                }
+
+            }
+
         }
     }
 }

@@ -20,8 +20,11 @@ import android.preference.RingtonePreference;
 import android.text.TextUtils;
 import android.view.MenuItem;
 import android.support.v4.app.NavUtils;
+import android.widget.Toast;
 
 import java.util.List;
+
+import ch.hepia.waspmasterrace.waspdroid.data.RunDBHelper;
 
 /**
  * A {@link PreferenceActivity} that presents a set of application settings. On
@@ -35,12 +38,31 @@ import java.util.List;
  * API Guide</a> for more information on developing a Settings UI.
  */
 public class SettingsActivity extends AppCompatPreferenceActivity {
+    Context context;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        context = this;
         addPreferencesFromResource(R.xml.pref_general);
         setupActionBar();
+        Preference clearCache = (Preference) findPreference(getString(R.string.pref_clearDB));
+
+        clearCache.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            /**
+             * Called when a Preference has been clicked.
+             *
+             * @param preference The Preference that was clicked.
+             * @return True if the click was handled.
+             */
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                RunDBHelper helper = new RunDBHelper(context.getApplicationContext());
+                helper.clear(helper.getWritableDatabase());
+                Toast.makeText(context,"Cleared database",Toast.LENGTH_LONG).show();
+                return true;
+            }
+        });
     }
 
     /**
