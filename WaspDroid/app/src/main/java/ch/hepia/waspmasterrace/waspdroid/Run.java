@@ -3,6 +3,8 @@ package ch.hepia.waspmasterrace.waspdroid;
 import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -158,5 +160,10 @@ public class Run implements Serializable{
 
     public Double getDistanceInKm(){
         return this.distance / 1000;
+    }
+
+    public String getDateForDB() {
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        return df.format(this.getStartDate());
     }
 }

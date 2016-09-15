@@ -14,19 +14,19 @@ import java.util.Comparator;
  */
 public class DataPoint implements Serializable,Comparator,Comparable {
     private GPScoordinates point;
-    private int id;
+    private int count;
     private int time;
 
     /**
      * Constructor for the DataPoint
      *
      * @param point The GPS coordinates of the point
-     * @param id    The sequence number of the point
+     * @param count    The sequence number of the point
      * @param time  The time at which the point was taken (in seconds from the beginning of the run)
      */
-    public DataPoint(GPScoordinates point, int id, int time) {
+    public DataPoint(GPScoordinates point, int count, int time) {
         this.point = point;
-        this.id = id;
+        this.count = count;
         this.time = time;
     }
 
@@ -42,8 +42,8 @@ public class DataPoint implements Serializable,Comparator,Comparable {
      *
      * @return  The sequence number of the point
      */
-    public int getId() {
-        return id;
+    public int getCount() {
+        return count;
     }
 
     /**
@@ -96,9 +96,9 @@ public class DataPoint implements Serializable,Comparator,Comparable {
      */
     @Override
     public int compare(Object o1, Object o2) {
-        if (((DataPoint)o1).getId()<((DataPoint)o2).getId()){
+        if (((DataPoint)o1).getCount()<((DataPoint)o2).getCount()){
             return -1;
-        }else if (((DataPoint)o1).getId()>((DataPoint)o2).getId()){
+        }else if (((DataPoint)o1).getCount()>((DataPoint)o2).getCount()){
             return 1;
         }else{
             return 0;
@@ -145,9 +145,9 @@ public class DataPoint implements Serializable,Comparator,Comparable {
      */
     @Override
     public int compareTo(Object o) {
-        if (this.getId()<((DataPoint)o).getId()){
+        if (this.getCount()<((DataPoint)o).getCount()){
             return -1;
-        }else if (this.getId()>((DataPoint)o).getId()){
+        }else if (this.getCount()>((DataPoint)o).getCount()){
             return 1;
         }else{
             return 0;
@@ -177,7 +177,7 @@ public class DataPoint implements Serializable,Comparator,Comparable {
      */
     @Override
     public String toString() {
-        return "---------------\n Point: "+this.getPoint()+"\nCount: "+this.getId()+"\nTime: "+this.getTime()+"\n-------------\n";
+        return "---------------\n Point: "+this.getPoint()+"\nCount: "+this.getCount()+"\nTime: "+this.getTime()+"\n-------------\n";
 
     }
 }

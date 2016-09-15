@@ -1,5 +1,7 @@
 package ch.hepia.waspmasterrace.waspdroid;
 
+import android.content.ContentValues;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.widget.ArrayAdapter;
 import android.widget.Toast;
@@ -7,7 +9,6 @@ import android.widget.Toast;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.lang.reflect.Array;
 import java.net.URL;
 import java.net.URLConnection;
 import java.text.DateFormat;
@@ -15,7 +16,9 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.LinkedHashMap;
+
+import ch.hepia.waspmasterrace.waspdroid.data.RunDBContract.*;
+import ch.hepia.waspmasterrace.waspdroid.data.RunDBHelper;
 
 /**
  * Created by maximelovino on 01/09/16.
@@ -27,12 +30,16 @@ public class PHPConnector extends AsyncTask<Void,Void,ArrayList<Run>> {
     private String serverPath;
     private ArrayAdapter<Run> runAdapter;
     private MainActivity activity;
+    private SQLiteDatabase db;
+    private RunDBHelper helper;
 
-    public PHPConnector(String baseURL,int portNumber, ArrayAdapter<Run> runAdapter, MainActivity activity){
+    public PHPConnector(String baseURL,int portNumber, ArrayAdapter<Run> runAdapter, MainActivity activity, SQLiteDatabase db, RunDBHelper helper){
         this.baseURL = baseURL;
         this.portNumber = portNumber;
         this.runAdapter = runAdapter;
         this.activity = activity;
+        this.db = db;
+        this.helper = helper;
         buildServerPath();
     }
 
@@ -169,6 +176,7 @@ public class PHPConnector extends AsyncTask<Void,Void,ArrayList<Run>> {
             System.out.println("we've got data");
             runAdapter.clear();
             runAdapter.addAll(runs);
+            updateDB(runs);
         }else{
             System.out.println("hello from null world");
             Toast.makeText(activity,"Couldn't sync data",Toast.LENGTH_LONG).show();
@@ -176,5 +184,44 @@ public class PHPConnector extends AsyncTask<Void,Void,ArrayList<Run>> {
         }
         if (activity.swipe2Refresh.isRefreshing())
             activity.swipe2Refresh.setRefreshing(false);
+    }
+
+    private void updateDB(ArrayList<Run> runs){
+        this.db.execSQL("DROP TABLE IF EXISTS "+ RunListEntry.TABLE_NAME);
+        this.db.execSQL("DROP TABLE IF EXISTS "+ RunDataEntry.TABLE_NAME);
+        helper.onCreate(this.db);
+
+        for (Run run : runs) {
+            int runID = run.getRunID();
+            int userID = run.getUserID();
+            int seconds = run.getTimeOfRun();
+            String date = run.getDateForDB();
+            ArrayList<DataPoint> points = run.getRunData();
+
+            ContentValues runLine = new ContentValues();
+            runLine.put(RunListEntry.COLUMN_RUNID,runID);
+            runLine.put(RunListEntry.COLUMN_DATE,date);
+            runLine.put(RunListEntry.COLUMN_SECONDS,seconds);
+            runLine.put(RunListEntry.COLUMN_USERID,userID);
+
+            this.db.insert(RunListEntry.TABLE_NAME,null,runLine);
+
+            for (DataPoint point : points) {
+                GPScoordinates gps = point.getPoint();
+                double x = gps.getXCoord();
+                double y = gps.getYCoord();
+                int count = point.getCount();
+                int time = point.getTime();
+
+                ContentValues pointLine = new ContentValues();
+                pointLine.put(RunDataEntry.COLUMN_RUNID,runID);
+                pointLine.put(RunDataEntry.COLUMN_X,x);
+                pointLine.put(RunDataEntry.COLUMN_Y,y);
+                pointLine.put(RunDataEntry.COLUMN_COUNT,count);
+                pointLine.put(RunDataEntry.COLUMN_TIME,time);
+
+                this.db.insert(RunDataEntry.TABLE_NAME,null,pointLine);
+            }
+        }
     }
 }

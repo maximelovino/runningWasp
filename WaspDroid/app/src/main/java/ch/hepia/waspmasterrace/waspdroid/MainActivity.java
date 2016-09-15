@@ -31,57 +31,19 @@ import ch.hepia.waspmasterrace.waspdroid.data.RunDBHelper;
 public class MainActivity extends AppCompatActivity {
 
     private ArrayAdapter<Run> runArrayAdapter;
-    private ArrayList<Run> runList;
     public SwipeRefreshLayout swipe2Refresh;
     private static final String TAG = MainActivity.class.getName();
-
-
-    /**
-     * Saves state of variables when activity is stopped
-     *
-     * @param outState  The bundle, where we put the data
-     */
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        outState.putSerializable("RUN_LIST",this.runList);
-        super.onSaveInstanceState(outState);
-        Log.v(TAG,"Data saved");
-    }
-
-
-    /**
-     * This method is called after {@link #onStart} when the activity is
-     * being re-initialized from a previously saved state, given here in
-     * <var>savedInstanceState</var>.  Most implementations will simply use {@link #onCreate}
-     * to restore their state, but it is sometimes convenient to do it here
-     * after all of the initialization has been done or to allow subclasses to
-     * decide whether to use your default implementation.  The default
-     * implementation of this method performs a restore of any view state that
-     * had previously been frozen by {@link #onSaveInstanceState}.
-     * <p/>
-     * <p>This method is called between {@link #onStart} and
-     * {@link #onPostCreate}.
-     *
-     * @param savedInstanceState the data most recently supplied in {@link #onSaveInstanceState}.
-     * @see #onCreate
-     * @see #onPostCreate
-     * @see #onResume
-     * @see #onSaveInstanceState
-     */
-    @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
-        this.runList = (ArrayList<Run>) savedInstanceState.getSerializable("RUN_LIST");
-        Log.v(TAG,"Data restored");
-    }
+    RunDBHelper dbHelper;
 
     //TODO check if we should implement a recycler view
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        SQLiteDatabase db = new RunDBHelper(this).getReadableDatabase();
+        //Setting the adapter and list view to display the runs
+        runArrayAdapter = new ArrayAdapter<>(this,R.layout.list_run_item,R.id.list_run_item_text,new ArrayList<Run>());
+        dbHelper = new RunDBHelper(this);
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
 
         updateDataFromSQLite(db);
 
@@ -105,8 +67,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        //Setting the adapter and list view to display the runs
-        runArrayAdapter = new ArrayAdapter<>(this,R.layout.list_run_item,R.id.list_run_item_text,runList);
+
         ListView lView = (ListView) findViewById(R.id.listView);
         lView.setAdapter(runArrayAdapter);
         lView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -136,13 +97,12 @@ public class MainActivity extends AppCompatActivity {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         String baseUrl = prefs.getString(getString(R.string.pref_key_url),getString(R.string.pref_default_url));
         int portNumber = Integer.valueOf(prefs.getString(getString(R.string.pref_key_port),getString(R.string.pref_default_port)));
-        SQLiteDatabase db = new RunDBHelper(this).getWritableDatabase();
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
         //We create an asyncTask to take care of the network task
-        AsyncTask task = new PHPConnector(baseUrl,portNumber,runArrayAdapter,this).execute();
+        AsyncTask task = new PHPConnector(baseUrl,portNumber,runArrayAdapter,this,db,dbHelper).execute();
     }
 
     private void updateDataFromSQLite(SQLiteDatabase db){
-        this.runList = new ArrayList<>();
         Cursor runListCursor = db.query(RunListEntry.TABLE_NAME,null,null,null,null,null,null);
 
         if (runListCursor.moveToFirst()){
@@ -178,7 +138,7 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 run.setRunData(data);
-                this.runList.add(run);
+                this.runArrayAdapter.add(run);
             }while (runListCursor.moveToNext());
         }
     }
