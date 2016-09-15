@@ -63,6 +63,23 @@ Dans le cas où le réseau GPRS est inaccessible au moment où doit démarrer un
 Lorsque la course est stoppée, le fichier est rendu disponible à l'envoi. Immédiatement, la carte WiFly s'active et essaye de se connecter au réseau WiFi sauvegardé dans sa configuration. De la même manière, si la carte s'allume et qu'un fichier de course est présent en mémoire, elle essayera d'abord d'envoyer le fichier avant de laisser l'utilisateur démarrer une course.\newline
 Sitôt que la carte parvient à se connecter à un réseau WiFy, elle ouvre une connexion vers un socket java présent sur le serveau web. Lorsque la connexion TCP est établie, la carte envoie ligne par ligne les données présentes sur le fichier, puis se déconnecte et, si les données ont été correctement envoyée, détruit le fichier. Une nouvelle course peut alors être lancée.\newline
 Dans le cas où la carte est incapable d'obtenir une connexion WiFi ou TCP, et ce afin d'éviter un comportement bloquant pour l'utilisateur, un timeout a été mis en place. Globalement, une tentative de connexion prend 5 secondes, aussi nous avons limité le nombre de tentatives à 12 afin que la carte essaye de se connecter pendant environ une minute avant d'abandonner et de laisser l'utilisateur démarrer, s'il le souhaite, une nouvelle course. Par ailleurs, si cette nouvelle course doit être enregistrée sur la carte SD, elle sera simplement ajoutée à la suite de celle déjà présente.\newline
+\subsection{Application Android}
+Une application Android a également été réalisée, il s'agit de WaspDroid.
+\subsubsection{Recupération des données et stockage}
+Pour récupérer les données de course depuis le serveur, un hook php dédié a été mis en place, en effet: \newline
+\verb+/android.php?uid=1&listrun+ \newline
+permet de récupérer la liste des courses dans un format CSV de la forme \verb+runID;date;temps+. Ensuite, nous pouvons utiliser \newline
+\verb+/android.php?uid=1&rundata&idRun=X+ \newline
+pour récupérer la liste des points pour la course X. Ses données sont en CSV de la forme
+\verb+x;y;count;temps+ \\
 
+Les données sont stockées dans une base de données locale SQLite qui sert de cache en cas de perte de connexion de l'appareil et permet de rendre l'application plus rapidement fonctionnelle, étant donnée que les données sont déjà chargées sont devoir envoyer des requêtes au serveur. Les classes \verb+RunDBContract+ et \verb+RunDBHelper+ s'occupent de cette base de données. La classe \verb+PHPConnector+ prend en charge l'intéraction avec notre serveur, elle hérite de \verb+AsyncTask+ pour lui permettre de charger les données dans un thread séparé. (obligatoire sur Android)\\
+
+Dans les réglages de l'application, il est possible de définir l'URL et le port du serveur à utiliser (par défaut sampang.internet-box.ch et port 8080) ainsi que de remettre à zéro la base de données de cache.
+
+\subsubsection{Interface graphique et API Maps}
+L'interface graphique de l'application est assez simple, nous avons deux activités principales. \verb+MainActivity+ qui affiche la liste des différentes courses et qui lance \verb+DetailView+ lorsqu'on clique sur l'une d'entre elles. \\
+
+Dans la vue détaillée, nous affichons les différentes statistiques de la course, ainsi qu'un fragment Google Maps avec le parcours de celle-ci. L'application demande la permission à l'utilisateur à ce moment-là pour utiliser sa localisation et pouvoir l'afficher sur la carte également.
 
 \end{document}
