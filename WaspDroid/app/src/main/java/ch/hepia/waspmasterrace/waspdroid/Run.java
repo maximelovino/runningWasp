@@ -126,6 +126,7 @@ public class Run implements Serializable{
 
         this.distance = dist;
         this.avgSpeed = dist / this.timeOfRun;
+        System.out.println("Distance: "+dist+", Time: "+this.timeOfRun+", Speed: "+this.avgSpeed);
         this.maxSpeed = highSpeed;
 
     }
@@ -147,7 +148,7 @@ public class Run implements Serializable{
     }
 
     private static Double getSpeedInKmh(Double speed){
-        return speed / 3.6;
+        return speed * 3.6;
     }
 
     public Double getAvgSpeedAsKmh(){

@@ -51,11 +51,11 @@ public class GPScoordinates implements Serializable {
      * @return  The distance (in meters) between this instance and the second coordinate
      */
     public double distanceTo(GPScoordinates secondCoordinate){
-        double lambda1 =  this.xCoord;
-        double phi1 = this.yCoord;
+        double lambda1 =  Math.toRadians(this.xCoord);
+        double phi1 = Math.toRadians(this.yCoord);
 
-        double lambda2 = secondCoordinate.getXCoord();
-        double phi2 = secondCoordinate.getYCoord();
+        double lambda2 = Math.toRadians(secondCoordinate.getXCoord());
+        double phi2 = Math.toRadians(secondCoordinate.getYCoord());
         System.out.println(lambda1+";"+phi1+";"+lambda2+";"+phi2);
 
         double alpha = Math.pow(Math.sin((phi1-phi2)/2.0),2) + Math.cos(phi1)*Math.cos(phi2)*Math.pow(Math.sin((lambda1-lambda2)/2.0),2);
