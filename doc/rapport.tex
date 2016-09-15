@@ -16,6 +16,9 @@ Le traceur est lui-même fait d'une carte waspmote équipée d'un module GPS et 
 Le serveur web récupère les données GPS du traceur, les traite et les stocke. Il fournit également la possibilité de consulter les rapports de courses sur Internet.\newline
 L'application Android permet quant à elle de recevoir les rapports de course directement sur son smartphone.\newline
 \section{Réalisation}
+\subsection{Base de données}
+La base de données se présente selon le schéma suivant: \newline
+\includegraphics[scale=0.4]{db.png}
 \subsection{Récupération et envoi des données GPS}
 La première étape pour notre application est de récupérer la position actuelle via GPS, le module GPRS+GPS de la Waspmote s'occupe de nous donner la position en degrés [-180;180].\newline
 Nous appliquons ensuite un code correcteur d'erreurs afin d'éviter qu'un problème de communication n'entraine l'insertion de fausses données dans la course.\newline
