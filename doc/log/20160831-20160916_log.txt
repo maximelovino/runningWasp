@@ -1,0 +1,30 @@
+End of first week:
+
+Discarded direct database access using JDBC, because of incompatibility with Java 8 (Android apps are compiled using Java 8), an android php hook is done, so we just have to do GET requests to retrieve the data. This solution is more secure as well, since we don't need to be able to access the database from outside the network.
+
+The ListView adapter is populated:
+- list_run_item.xml is the view of an item of the list
+- The list is in the MainActivity layout
+
+The download of data must run in a AsyncTask on another thread, since it is a network task. Network task can't happen on the UI thread in Android
+
+Second week:
+
+Computation of stats in Run class done. Added click listener to launch the DetailView with the correct Run passed in the intent. Added a preferences view as well, to be able to set the server address (for debug purposes, when the PI is shutdown, we work in local). Added pull to refresh to mainView and modularized the MainActivity class.
+
+Two days working exclusively on Waspmote code, and then continuing Android app.
+
+Addition of the Maps fragment, registration of an API key, Maps is functional as a standalone activity, has to be integrated in a fragment in the DetailView.
+The logic for drawing the run on it and setting the bounds is done. The map can request the user for the permission to use his location, to be able to display it on the map. Use of the new Marshmallow runtime permissions for that.
+
+Third week:
+
+Integrated Maps as a fragment in DetailView. Creation of a new DataPoint class to integrate the new time field when taking points of the run from the server.
+
+Added bounds to the map on the website as well, using google.maps.LatLngBounds().
+
+The rest of the week was spent optimising the app, including the setup of a local SQLite database working as a cache for the data. Instead of waiting for the whole data to load when opening the app, existing data is instantly loaded from the SQLite database and then data is refreshed and new data is added. This means the app will have some data (not up-to-date) even if the server is down or the phone is not connected.
+
+Generated some demos runs using the waspmote, as well as some "fake" data from GPS data from two F1 tracks. Wrote a Python script to parse the CSV of this data and do the GET requets to add them to our server.
+
+Worked on the final report and powerpoint for the rest of the day. Added all JavaDoc comments to the Android code and cleaned up debug outputs.
