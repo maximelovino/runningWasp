@@ -44,8 +44,8 @@ Voici un exemple de communication entre la waspmote et l'application web
 
 \subsection{Traitement des données}
 L'application web s'occupe du lien avec la base de données, au départ de la course un fannion running dans la ligne de l'utilisateur est défini à l'id de la course en cours.\newline
-Ensuite à chaque fois qu'un point est envoyé, les données du point (x,y,cnt et time) sont ajoutés dans la table t\_rundata.\newline
-Lorsque l'application reçoit le fannion end, la case running de l'utilisateur est remise à 0 et les statistiques de course sont calculées.
+Ensuite à chaque fois qu'un point est envoyé, les données du point (x, y, cnt et time) sont ajoutés dans la table t\_rundata.\newline
+Lorsque l'application reçoit le fanion end, la case running de l'utilisateur est remise à 0 et les statistiques de course sont calculées.
 Le calcul de la distance au sol est fait par la formule d'Haversine.
 \begin{equation*}
 a = sin^2(\frac{\varphi_1 - \varphi_2}{2}) + cos(\varphi_1) * cos(\varphi_2) * sin^2(\frac{\lambda_1 - \lambda_2}{2})
@@ -90,5 +90,11 @@ La classe \verb+DataPoint+ désigne un point de notre parcours, c'est-à-dire un
 La classe \verb+Run+ elle, comprend une list de \verb+DataPoint+ représentant ses points ainsi que des attributs d'instance pour sa date, son ID, l'ID de l'user et le temps total de la course. \\
 
 \verb+GPSCoordinates+ est une petite classe qui désigne la latitude et longitude d'un point ainsi qu'une méthode pour calculer la distance de l'instance à une autre coordonnée (formule d'Haversine, voir plus haut)
+
+
+\section{Conclusion}
+RunningWasp est au final un projet relativement complet, auquel on pourrait imaginer ajouter encore des nombreuses features : un chiffrement des communications entre les différents éléments, une gestion du multiuser (dont nous avons déjà l'infrastructure en base de données via le système de user ID - uid), etc... 
+\newline La totale liberté de création et de gestion du temps de notre projet a été relativement agréable et stimulant. Le fait que malgré l'apparente simplicité du projet nous ayons été opposé à de véritables défis nous a permis de travailler en équipe à résoudre des problèmes plutôt complexe. 
+\newline Pour peu que le projet puisse être miniaturisé et allegé, nous aurions presque déjà pu le commercialiser.
 
 \end{document}
