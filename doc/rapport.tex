@@ -22,14 +22,14 @@ La base de données se présente selon le schéma suivant: \newline
 \subsection{Récupération et envoi des données GPS}
 La première étape pour notre application est de récupérer la position actuelle via GPS, le module GPRS+GPS de la Waspmote s'occupe de nous donner la position en degrés [-180;180].\newline
 Nous appliquons ensuite un code correcteur d'erreurs afin d'éviter qu'un problème de communication n'entraine l'insertion de fausses données dans la course.\newline
-Une fois la position définie, la waspmote, si une carte SIM et une connexion sont disponible, va envoyer une requête GET sur l'application web (page run.php), en définissant des flags dans l'url qui seront interprétés par le code php.
+Une fois la position définie, la waspmote, si une carte SIM et une connexion sont disponibles, va envoyer une requête GET sur l'application web (page run.php), en définissant des flags dans l'url qui seront interprétés par le code php.
 \begin{itemize}
 \item uid: l'identifiant de l'utilisateur courant, (par défaut 1)
 \item start: doit être défini en cas de début de course
 \item x: longitude (en degrés)
 \item y: latitude (en degrés)
 \item cnt: numéro du point envoyé
-\item time: temps (en seconde) écoulé depuis le début de la course
+\item time: temps (en secondes) écoulé depuis le début de la course
 \item end: envoyé en fin de course
 \end{itemize}
 Voici un exemple de communication entre la waspmote et l'application web
@@ -44,7 +44,7 @@ Voici un exemple de communication entre la waspmote et l'application web
 
 \subsection{Traitement des données}
 L'application web s'occupe du lien avec la base de données, au départ de la course un fannion running dans la ligne de l'utilisateur est défini à l'id de la course en cours.\newline
-Ensuite à chaque fois qu'un point est envoyé, données du point (x,y,cnt et time) sont ajoutés dans la table t\_rundata.\newline
+Ensuite à chaque fois qu'un point est envoyé, les données du point (x,y,cnt et time) sont ajoutés dans la table t\_rundata.\newline
 Lorsque l'application reçoit le fannion end, la case running de l'utilisateur est remise à 0 et les statistiques de course sont calculées.
 Le calcul de la distance au sol est fait par la formule d'Haversine.
 \begin{equation*}
@@ -59,9 +59,9 @@ $\lambda_1 \; et \; \lambda_2$ sont les latitudes des deux points\newline
 $r$ est le rayon de la terre (6371 Km)\newline
 \subsection{Stockage des données en cas de problème de réseau}
 Dans le cas où le module est incapable, pour une raison ou une autre, de se connecter au réseau GPRS avant qu'une course ne soit démarrée, il nous a fallu trouver un moyen de ne pas rendre le module inutilisable. Pour cela, nous avons fait le choix de permettre à l'utilisateur de sauvegarder les données de la course sur une carte SD.\newline
-Dans le cas où le réseau GPRS est inaccessible au moment où doit démarrer une course, les données GPS et tous les points sont sauvegardés sur un fichier texte présent dans la carte SD, sous la forme de lignes de commandes. La course se déroule alors normalement, chaque point étant sauvegardé sur la carte SD.\newline
+Dans le cas où le réseau GPRS est inaccessible au moment où l'on doit démarrer une course, les données GPS et tous les points sont sauvegardés sur un fichier texte présent dans la carte SD, sous la forme de lignes de commandes. La course se déroule alors normalement, chaque point étant sauvegardé sur la carte SD.\newline
 Lorsque la course est stoppée, le fichier est rendu disponible à l'envoi. Immédiatement, la carte WiFly s'active et essaye de se connecter au réseau WiFi sauvegardé dans sa configuration. De la même manière, si la carte s'allume et qu'un fichier de course est présent en mémoire, elle essayera d'abord d'envoyer le fichier avant de laisser l'utilisateur démarrer une course.\newline
-Sitôt que la carte parvient à se connecter à un réseau WiFi, elle ouvre une connexion vers un socket java présent sur le serveau web. Lorsque la connexion TCP est établie, la carte envoie ligne par ligne les données présentes sur le fichier, puis se déconnecte et, si les données ont été correctement envoyée, détruit le fichier. Une nouvelle course peut alors être lancée.\newline
+Sitôt que la carte parvient à se connecter à un réseau WiFi, elle ouvre une connexion vers un socket java présent sur le serveur web. Lorsque la connexion TCP est établie, la carte envoie ligne par ligne les données présentes sur le fichier, puis se déconnecte et, si les données ont été correctement envoyée, détruit le fichier. Une nouvelle course peut alors être lancée.\newline
 Dans le cas où la carte est incapable d'obtenir une connexion WiFi ou TCP, et ce afin d'éviter un comportement bloquant pour l'utilisateur, un timeout a été mis en place. Globalement, une tentative de connexion prend 5 secondes, aussi nous avons limité le nombre de tentatives à 12 afin que la carte essaye de se connecter pendant environ une minute avant d'abandonner et de laisser l'utilisateur démarrer, s'il le souhaite, une nouvelle course. Par ailleurs, si cette nouvelle course doit être enregistrée sur la carte SD, elle sera simplement ajoutée à la suite de celle déjà présente.\newline
 \subsection{Application Android}
 Une application Android a également été réalisée, il s'agit de WaspDroid.
@@ -81,5 +81,14 @@ Dans les réglages de l'application, il est possible de définir l'URL et le por
 L'interface graphique de l'application est assez simple, nous avons deux activités principales. \verb+MainActivity+ qui affiche la liste des différentes courses et qui lance \verb+DetailView+ lorsqu'on clique sur l'une d'entre elles. \\
 
 Dans la vue détaillée, nous affichons les différentes statistiques de la course, ainsi qu'un fragment Google Maps avec le parcours de celle-ci. L'application demande la permission à l'utilisateur à ce moment-là pour utiliser sa localisation et pouvoir l'afficher sur la carte également.
+
+\subsubsection{Classes implémentées}
+Pour gérer les courses, deux classes ont été implémentées, il s'agit de \verb+DataPoint+ et de \verb+Run+. \\
+
+La classe \verb+DataPoint+ désigne un point de notre parcours, c'est-à-dire une position GPS (classe \verb+GPSCoordinates+ que nous avons réalisé) ainsi que le "count" qui est un numéro de séquence qui nous permet d'identifier l'ordre des points et la valeur du chronomètre lors de l'envoi du point. \\
+
+La classe \verb+Run+ elle, comprend une list de \verb+DataPoint+ représentant ses points ainsi que des attributs d'instance pour sa date, son ID, l'ID de l'user et le temps total de la course. \\
+
+\verb+GPSCoordinates+ est une petite classe qui désigne la latitude et longitude d'un point ainsi qu'une méthode pour calculer la distance de l'instance à une autre coordonnée (formule d'Haversine, voir plus haut)
 
 \end{document}
